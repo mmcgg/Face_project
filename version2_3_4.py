@@ -136,7 +136,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.__flag_work = 0
         self.x =0
         self.recognition_flag=False
-        self.name_list=[]
     def set_ui(self):
         self.nameLable = QLabel(" ")
         self.__layout_main = QtWidgets.QHBoxLayout()
@@ -289,9 +288,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
             event.accept()
     def detect_recognition(self):
         result = datas.detector.detect_faces(self.image)
-        if len(result) == 0:
-            name_list.append(-1)
-            return img, name_list
         aligment_imgs = []
         originfaces = []
         # 检测，标定landmark
@@ -303,7 +299,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
             cv2.rectangle(self.image, (bouding_boxes[0], bouding_boxes[1]),
                           (bouding_boxes[0] + bouding_boxes[2], bouding_boxes[1] + bouding_boxes[3]), (255, 0, 0), 2)
 
-            faces = img[bouding_boxes[1]:bouding_boxes[1] + bouding_boxes[3],
+            faces = self.image[bouding_boxes[1]:bouding_boxes[1] + bouding_boxes[3],
                     bouding_boxes[0]:bouding_boxes[0] + bouding_boxes[2]]
             originfaces.append(faces)
             lefteye = keypoints['left_eye']
@@ -348,15 +344,10 @@ class Ui_MainWindow(QtWidgets.QWidget):
                 result_index.append(imgfeature.index(max(imgfeature)))
         for i, index in enumerate(result_index):
             name = imgs_name_list[i]
-            for ex_face in name_list:
-                if name == ex_face:
-                    break
-                else :
-                    name_list.append(name)
             tx = time.strftime('%Y-%m-%d %H:%M:%S')
-            cv2.putText(img, name, (result[i]['box'][0], result[i]['box'][1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0),
+            cv2.putText(self.image, name, (result[i]['box'][0], result[i]['box'][1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0),
                         1)
-            cv2.putText(img, str('time:') + str(tx), (result[i]['box'][0] + 10, result[i]['box'][1] + 10),
+            cv2.putText(self.image, str('time:') + str(tx), (result[i]['box'][0] + 10, result[i]['box'][1] + 10),
                         cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1)
 
 

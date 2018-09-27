@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'deisgn1.ui'
-#
-# Created by: PyQt5 UI code generator 5.10.1
-#
-# WARNING! All changes made in this file will be lost!
+from __future__ import print_function
+import sys
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+import cv2
+import numpy as np
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -44,3 +41,6 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
 
+app = QtWidgets.QApplication(sys.argv)
+ui = Ui_MainWindow()
+sys.exit(app.exec_())

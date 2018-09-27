@@ -37,7 +37,7 @@ def alignment(src_img,src_pts):
 
 parser = argparse.ArgumentParser(description='PyTorch sphereface lfw')
 parser.add_argument('--net','-n', default='sphere20a', type=str)
-parser.add_argument('--model','-m', default='./model/sphere20a_20171020.pth', type=str)
+parser.add_argument('--model','-m', default='../my_face_model/model/sphere20a_20171020.pth', type=str)
 args = parser.parse_args()
 
 net = getattr(net_sphere,args.net)()
