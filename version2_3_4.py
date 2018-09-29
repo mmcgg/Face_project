@@ -137,6 +137,8 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.__flag_work = 0
         self.x =0
         self.recognition_flag=False
+
+        #初始化右键下拉菜单
         self.initMenu()
         self.initAnimation()
     def set_ui(self):
@@ -203,7 +205,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
             self.timer_camera.stop()
             self.cap.release()
             self.label_show_camera.clear()
-            self.button_open_camera.setText(u'open your camera')
 
 
     def show_camera(self):
