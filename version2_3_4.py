@@ -128,12 +128,13 @@ class Ui_MainWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(Ui_MainWindow, self).__init__(parent)
 
-        # self.face_recong = face.Recognition()
         self.timer_camera = QtCore.QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0
+
         self.set_ui()
         self.slot_init()
+
         self.__flag_work = 0
         self.x =0
         self.recognition_flag=False
@@ -210,7 +211,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
             self.cap.release()
             self.label_show_camera.clear()
 
-
     def show_camera(self):
         flag, self.image= self.cap.read()
         if self.recognition_flag==True:
@@ -219,11 +219,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
         self.label_show_camera.setPixmap(QtGui.QPixmap.fromImage(showImage))
-        # self.x += 1
-        # self.label_move.move(self.x,100)
 
-        # if self.x ==320:
-        #     self.label_show_camera.raise_()
     def button_detection_click(self):
         if self.timer_camera.isActive()==False:
             msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"pleas open your camara", buttons=QtWidgets.QMessageBox.Ok,
@@ -232,10 +228,10 @@ class Ui_MainWindow(QtWidgets.QWidget):
         else:
             if self.recognition_flag==False:
                 self.recognition_flag=True
-                self.button_detect.setText(u'stop recognition')
+
             else:
                 self.recognition_flag=False
-                self.button_detect.setText(u'begin recognition')
+
 
     def button_record_click(self):
         if self.timer_camera.isActive()==False:
