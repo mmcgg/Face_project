@@ -7,6 +7,18 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import cv2
 import numpy as np
 class Ui_MainWindow(object):
+    def __int__(self):
+        self.timer_camera = QtCore.QTimer()
+        self.cap = cv2.VideoCapture()
+        self.CAM_NUM = 0
+        self.setupUi()
+        self.__flag_work = 0
+        self.x =0
+        self.recognition_flag=False
+
+
+        #初始化右键下拉菜单
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1127, 809)

@@ -1,8 +1,9 @@
 from __future__ import print_function
 import sys
 from PyQt5 import QtCore, QtGui,QtWidgets
+
 from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QRect
-from PyQt5.QtWidgets import QApplication, QLineEdit, QInputDialog, QGridLayout, QLabel, QPushButton, QFrame, QWidget,QMenu
+from PyQt5.QtWidgets import QApplication, QLineEdit, QInputDialog, QGridLayout, QLabel, QPushButton, QFrame, QWidget,QMenu, QMainWindow
 import os
 sys.setrecursionlimit(1000000)
 
@@ -124,35 +125,36 @@ def add_new_face(img, name):
     cv2.imwrite("./images/" + str(name) + '.jpg', img)
 
 
-class Ui_MainWindow(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(Ui_MainWindow, self).__init__(parent)
+class Ui_MainWindow():
+    def __init__(self):
 
         # self.face_recong = face.Recognition()
         self.timer_camera = QtCore.QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0
+        self.Mainwindow = QMainWindow()
         self.set_ui()
         self.slot_init()
         self.__flag_work = 0
         self.x =0
         self.recognition_flag=False
 
+
         #初始化右键下拉菜单
         self.initMenu()
         self.initAnimation()
     def set_ui(self):
+        self.Mainwindow.resize(1200,1000)
         self.nameLable = QLabel(" ")
         self.__layout_main = QtWidgets.QHBoxLayout()
         self.__layout_fun_button = QtWidgets.QVBoxLayout()
         self.__layout_data_show = QtWidgets.QVBoxLayout()
 
-        
+
+        ###为显示图像位置添加Label
         self.label_show_camera = QtWidgets.QLabel()
         self.label_move = QtWidgets.QLabel()
         self.label_move.setFixedSize(200, 200)
-
-        
         self.label_show_camera.setFixedSize(800, 600)
         self.label_show_camera.setAutoFillBackground(False)
 
@@ -214,6 +216,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         show = cv2.resize(self.image, (800, 600))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
+        #在相机窗口上显示
         self.label_show_camera.setPixmap(QtGui.QPixmap.fromImage(showImage))
         # self.x += 1
         # self.label_move.move(self.x,100)
