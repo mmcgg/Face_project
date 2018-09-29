@@ -148,6 +148,9 @@ class Ui_MainWindow(QMainWindow):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of a1b7a98... 换成了下拉菜单
 =======
 >>>>>>> parent of a1b7a98... 换成了下拉菜单
         self.initMenu()

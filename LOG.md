@@ -6,10 +6,13 @@ qtdesigner 的.ui文件转换为 .py的方法: pyuic5 -o 1.py 1.ui
 
  
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 ## 想法
 
 下拉菜单: 参考pyqt 代码
+=======
+>>>>>>> parent of a1b7a98... 换成了下拉菜单
 =======
 >>>>>>> parent of a1b7a98... 换成了下拉菜单
 
