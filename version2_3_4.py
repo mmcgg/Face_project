@@ -125,32 +125,33 @@ def add_new_face(img, name):
     cv2.imwrite("./images/" + str(name) + '.jpg', img)
 
 
-class Ui_MainWindow():
+class Ui_MainWindow(QMainWindow):
     def __init__(self):
-
+        super(Ui_MainWindow, self).__init__()
         # self.face_recong = face.Recognition()
         self.timer_camera = QtCore.QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0
-        self.Mainwindow = QMainWindow()
         self.set_ui()
         self.slot_init()
         self.__flag_work = 0
         self.x =0
         self.recognition_flag=False
 
-
         #初始化右键下拉菜单
         self.initMenu()
         self.initAnimation()
+
     def set_ui(self):
-        self.Mainwindow.resize(1200,1000)
+        self.resize(1000,800)
+
+        #加一个窗口
+        self.centralwidget = QtWidgets.QWidget()
+        self.centralwidget.resize(800,600)
         self.nameLable = QLabel(" ")
-        self.__layout_main = QtWidgets.QHBoxLayout()
-        self.__layout_fun_button = QtWidgets.QVBoxLayout()
-        self.__layout_data_show = QtWidgets.QVBoxLayout()
-
-
+        self.centralwidget.__layout_main = QtWidgets.QHBoxLayout()
+        self.centralwidget.__layout_fun_button = QtWidgets.QVBoxLayout()
+        self.centralwidget.__layout_data_show = QtWidgets.QVBoxLayout()
         ###为显示图像位置添加Label
         self.label_show_camera = QtWidgets.QLabel()
         self.label_move = QtWidgets.QLabel()
@@ -159,13 +160,9 @@ class Ui_MainWindow():
         self.label_show_camera.setAutoFillBackground(False)
 
 
+        self.centralwidget.__layout_main.addWidget(self.centralwidget.label_show_camera)
 
-        self.__layout_main.addLayout(self.__layout_fun_button)
-        self.__layout_main.addWidget(self.label_show_camera)
-
-        self.setLayout(self.__layout_main)
-        self.label_move.raise_()
-        self.setWindowTitle(u'test')
+        self.centralwidget.label_move.raise_()
 
     def contextMenuEvent(self, event):
         pos = event.globalPos()
@@ -217,7 +214,7 @@ class Ui_MainWindow():
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
         #在相机窗口上显示
-        self.label_show_camera.setPixmap(QtGui.QPixmap.fromImage(showImage))
+        self.centralwidget.label_show_camera.setPixmap(QtGui.QPixmap.fromImage(showImage))
         # self.x += 1
         # self.label_move.move(self.x,100)
 
@@ -349,4 +346,5 @@ class Ui_MainWindow():
 app = QtWidgets.QApplication(sys.argv)
 ui = Ui_MainWindow()
 ui.show()
+ui.centralwidget.show()
 sys.exit(app.exec_())
