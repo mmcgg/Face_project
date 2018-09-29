@@ -147,6 +147,9 @@ class Ui_MainWindow(QMainWindow):
         self.recognition_flag=False
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of a1b7a98... 换成了下拉菜单
         self.initMenu()
         self.initAnimation()
 
