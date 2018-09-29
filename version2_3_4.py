@@ -142,12 +142,23 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.initMenu()
         self.initAnimation()
     def set_ui(self):
+        self.resize(1000,800)
         self.nameLable = QLabel(" ")
         self.__layout_main = QtWidgets.QHBoxLayout()
         self.__layout_fun_button = QtWidgets.QVBoxLayout()
         self.__layout_data_show = QtWidgets.QVBoxLayout()
 
-        
+        #Scroll area reset
+        self.scrollArea = QtWidgets.QScrollArea()
+        self.scrollArea.setGeometry(QtCore.QRect(830, 0, 291, 751))
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 289, 749))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+
+
         self.label_show_camera = QtWidgets.QLabel()
         self.label_move = QtWidgets.QLabel()
         self.label_move.setFixedSize(200, 200)
