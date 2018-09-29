@@ -1,7 +1,8 @@
 from __future__ import print_function
 import sys
 from PyQt5 import QtCore, QtGui,QtWidgets
-from PyQt5.QtWidgets import QApplication, QLineEdit, QInputDialog, QGridLayout, QLabel, QPushButton, QFrame
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QRect
+from PyQt5.QtWidgets import QApplication, QLineEdit, QInputDialog, QGridLayout, QLabel, QPushButton, QFrame, QWidget,QMenu
 import os
 sys.setrecursionlimit(1000000)
 
@@ -136,30 +137,13 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.__flag_work = 0
         self.x =0
         self.recognition_flag=False
+        self.initMenu()
+        self.initAnimation()
     def set_ui(self):
         self.nameLable = QLabel(" ")
         self.__layout_main = QtWidgets.QHBoxLayout()
         self.__layout_fun_button = QtWidgets.QVBoxLayout()
         self.__layout_data_show = QtWidgets.QVBoxLayout()
-
-
-
-        self.button_open_camera = QtWidgets.QPushButton(u'Open camera')
-        self.button_close = QtWidgets.QPushButton(u'exit')
-
-        
-        self.button_detect=QtWidgets.QPushButton(u'recognition')
-        
-        self.button_record=QtWidgets.QPushButton(u'record ')
-
-      
-        self.button_writeface=QtWidgets.QPushButton(u'Add a new face')
-
-        self.button_open_camera.setMinimumHeight(50)
-        self.button_close.setMinimumHeight(50)
-
-        self.button_detect.setMinimumHeight(50)
-        self.button_close.move(10,100)
 
         
         self.label_show_camera = QtWidgets.QLabel()
@@ -170,12 +154,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.label_show_camera.setFixedSize(800, 600)
         self.label_show_camera.setAutoFillBackground(False)
 
-        self.__layout_fun_button.addWidget(self.button_open_camera)
-        self.__layout_fun_button.addWidget(self.button_close)
-        self.__layout_fun_button.addWidget(self.label_move)
-        self.__layout_fun_button.addWidget(self.button_detect)
-        self.__layout_fun_button.addWidget(self.button_record)
-        self.__layout_fun_button.addWidget(self.button_writeface)
+
 
         self.__layout_main.addLayout(self.__layout_fun_button)
         self.__layout_main.addWidget(self.label_show_camera)
@@ -184,17 +163,32 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.label_move.raise_()
         self.setWindowTitle(u'test')
 
+    def contextMenuEvent(self, event):
+        pos = event.globalPos()
+        size = self._contextMenu.sizeHint()
+        x, y, w, h = pos.x(), pos.y(), size.width(), size.height()
+        self._animation.stop()
+        self._animation.setStartValue(QRect(x, y, 0, 0))
+        self._animation.setEndValue(QRect(x, y, w, h))
+        self._animation.start()
+        self._contextMenu.exec_(event.globalPos())
+
+    def initMenu(self):
+        self._contextMenu = QMenu(self)
+        self._contextMenu.addAction('打开相机', self.button_open_camera_click)
+        self._contextMenu.addAction('识别', self.button_detection_click)
+        self._contextMenu.addAction('记录', self.button_record_click)
+    def initAnimation(self):
+        # 按钮动画
+        self._animation = QPropertyAnimation(
+            self._contextMenu, b'geometry', self,
+            easingCurve=QEasingCurve.Linear, duration=300)
+        # easingCurve 修改该变量可以实现不同的效果
 
 
     def slot_init(self):
-        self.button_open_camera.clicked.connect(self.button_open_camera_click)
+
         self.timer_camera.timeout.connect(self.show_camera)
-        self.button_close.clicked.connect(self.close)
-        #add detection mode
-        self.button_detect.clicked.connect(self.button_detection_click)
-        #record connect
-        self.button_record.clicked.connect(self.button_record_click)
-        self.button_writeface.clicked.connect(self.button_wrtieface_click)
 
     def button_open_camera_click(self):
         if self.timer_camera.isActive() == False:
@@ -205,8 +199,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
         
             else:
                 self.timer_camera.start(50)
-
-                self.button_open_camera.setText(u'close the camera')
         else:
             self.timer_camera.stop()
             self.cap.release()
@@ -349,7 +341,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
                         1)
             cv2.putText(self.image, str('time:') + str(tx), (result[i]['box'][0] + 10, result[i]['box'][1] + 10),
                         cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1)
-
 
 app = QtWidgets.QApplication(sys.argv)
 ui = Ui_MainWindow()
