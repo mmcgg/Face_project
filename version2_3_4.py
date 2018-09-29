@@ -2,9 +2,13 @@ from __future__ import print_function
 import sys
 from PyQt5 import QtCore, QtGui,QtWidgets
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QRect
 from PyQt5.QtWidgets import QApplication, QLineEdit, QInputDialog, QGridLayout, QLabel, QPushButton, QFrame, QWidget,QMenu, QMainWindow
+=======
+from PyQt5.QtWidgets import QApplication, QLineEdit, QInputDialog, QGridLayout, QLabel, QPushButton, QFrame
+>>>>>>> parent of d2af8f7... 把按钮改成了下拉菜单
 =======
 from PyQt5.QtWidgets import QApplication, QLineEdit, QInputDialog, QGridLayout, QLabel, QPushButton, QFrame
 >>>>>>> parent of d2af8f7... 把按钮改成了下拉菜单
@@ -142,9 +146,12 @@ class Ui_MainWindow(QMainWindow):
         self.x =0
         self.recognition_flag=False
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.initMenu()
         self.initAnimation()
 
+=======
+>>>>>>> parent of d2af8f7... 把按钮改成了下拉菜单
 =======
 >>>>>>> parent of d2af8f7... 把按钮改成了下拉菜单
     def set_ui(self):
@@ -162,11 +169,31 @@ class Ui_MainWindow(QMainWindow):
 =======
 
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> parent of d2af8f7... 把按钮改成了下拉菜单
         self.button_open_camera = QtWidgets.QPushButton(u'Open camera')
         self.button_close = QtWidgets.QPushButton(u'exit')
 
         
         self.button_detect=QtWidgets.QPushButton(u'recognition')
+<<<<<<< HEAD
+=======
+        
+        self.button_record=QtWidgets.QPushButton(u'record ')
+
+      
+        self.button_writeface=QtWidgets.QPushButton(u'Add a new face')
+
+        self.button_open_camera.setMinimumHeight(50)
+        self.button_close.setMinimumHeight(50)
+
+        self.button_detect.setMinimumHeight(50)
+        self.button_close.move(10,100)
+
+>>>>>>> parent of d2af8f7... 把按钮改成了下拉菜单
         
         self.button_record=QtWidgets.QPushButton(u'record ')
 
@@ -188,15 +215,21 @@ class Ui_MainWindow(QMainWindow):
         self.label_show_camera.setAutoFillBackground(False)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         self.centralwidget.__layout_main.addWidget(self.centralwidget.label_show_camera)
 =======
+=======
+>>>>>>> parent of d2af8f7... 把按钮改成了下拉菜单
         self.__layout_fun_button.addWidget(self.button_open_camera)
         self.__layout_fun_button.addWidget(self.button_close)
         self.__layout_fun_button.addWidget(self.label_move)
         self.__layout_fun_button.addWidget(self.button_detect)
         self.__layout_fun_button.addWidget(self.button_record)
         self.__layout_fun_button.addWidget(self.button_writeface)
+<<<<<<< HEAD
+>>>>>>> parent of d2af8f7... 把按钮改成了下拉菜单
+=======
 >>>>>>> parent of d2af8f7... 把按钮改成了下拉菜单
 
         self.centralwidget.label_move.raise_()
