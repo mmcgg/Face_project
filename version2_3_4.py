@@ -145,7 +145,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.resize(1000,800)
         self.nameLable = QLabel(" ")
         self.__layout_main = QtWidgets.QHBoxLayout()
-        self.__layout_fun_button = QtWidgets.QVBoxLayout()
         self.__layout_data_show = QtWidgets.QVBoxLayout()
 
         #Scroll area reset
@@ -160,21 +159,15 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
 
         self.label_show_camera = QtWidgets.QLabel()
-        self.label_move = QtWidgets.QLabel()
-        self.label_move.setFixedSize(200, 200)
 
         
         self.label_show_camera.setFixedSize(800, 600)
         self.label_show_camera.setAutoFillBackground(False)
+        self.label_show_camera.setGeometry(QtCore.QRect(200,200,1000,800))
 
-
-
-        self.__layout_main.addLayout(self.__layout_fun_button)
         self.__layout_main.addWidget(self.label_show_camera)
 
         self.setLayout(self.__layout_main)
-        self.label_move.raise_()
-        self.setWindowTitle(u'test')
 
     def contextMenuEvent(self, event):
         pos = event.globalPos()
