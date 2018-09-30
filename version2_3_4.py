@@ -153,18 +153,18 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.scrollArea.setGeometry(QtCore.QRect(830, 0, 291, 751))
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
+        #为scroll area 添加一个布局
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 289, 749))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-
+        
 
         self.label_show_camera = QtWidgets.QLabel()
 
         
-        self.label_show_camera.setFixedSize(800, 600)
+        self.label_show_camera.setFixedSize(600, 600)
         self.label_show_camera.setAutoFillBackground(False)
-        self.label_show_camera.setGeometry(QtCore.QRect(200,200,1000,800))
+
 
         self.__layout_main.addWidget(self.label_show_camera)
 
@@ -347,4 +347,5 @@ class Ui_MainWindow(QtWidgets.QWidget):
 app = QtWidgets.QApplication(sys.argv)
 ui = Ui_MainWindow()
 ui.show()
+ui.scrollAreaWidgetContents.show()
 sys.exit(app.exec_())
