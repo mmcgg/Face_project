@@ -20,6 +20,10 @@ qtdesigner 的.ui文件转换为 .py的方法: pyuic5 -o 1.py 1.ui
 
 2.尝试 ActiveAction
 
+-----------------
+
+已完成，对某个Action 用 settext(str) 即可
+
 
 
 ### Multimedia调用摄像头
