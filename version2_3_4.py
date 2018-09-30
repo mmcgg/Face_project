@@ -182,9 +182,9 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
     def initMenu(self):
         self._contextMenu = QMenu(self)
-        self._contextMenu.addAction('打开相机', self.button_open_camera_click)
-        self._contextMenu.addAction('识别', self.button_detection_click)
-        self._contextMenu.addAction('记录', self.button_record_click)
+        self.ac_open_cama = self._contextMenu.addAction('打开相机', self.button_open_camera_click)
+        self.ac_detection = self._contextMenu.addAction('识别', self.button_detection_click)
+        self.ac_record = self._contextMenu.addAction('记录', self.button_record_click)
     def initAnimation(self):
         # 按钮动画
         self._animation = QPropertyAnimation(
@@ -206,11 +206,12 @@ class Ui_MainWindow(QtWidgets.QWidget):
         
             else:
                 self.timer_camera.start(50)
+                self.ac_open_cama.setText('关闭相机')
         else:
             self.timer_camera.stop()
             self.cap.release()
             self.label_show_camera.clear()
-
+            self.ac_open_cama.setText('打开相机')
     def show_camera(self):
         flag, self.image= self.cap.read()
         if self.recognition_flag==True:
