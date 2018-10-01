@@ -157,7 +157,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 289, 749))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        
+
 
         self.label_show_camera = QtWidgets.QLabel()
 
