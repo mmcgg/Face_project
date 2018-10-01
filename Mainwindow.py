@@ -128,9 +128,13 @@ class Ui_MainWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(Ui_MainWindow, self).__init__(parent)
 
+        #相机区域
+
         self.timer_camera = QtCore.QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0
+
+        self.resize(1022, 670)
 
         self.set_ui()
         self.slot_init()
@@ -143,7 +147,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.initMenu()
         self.initAnimation()
     def set_ui(self):
-        self.resize(1000,800)
         self.nameLable = QLabel(" ")
         self.__layout_main = QtWidgets.QHBoxLayout()
         self.__layout_data_show = QtWidgets.QVBoxLayout()
@@ -197,6 +200,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
         self.timer_camera.timeout.connect(self.show_camera)
 
+    #打开相机操作
     def button_open_camera_click(self):
         if self.timer_camera.isActive() == False:
             flag = self.cap.open(self.CAM_NUM)
@@ -264,17 +268,16 @@ class Ui_MainWindow(QtWidgets.QWidget):
         ok = QtWidgets.QPushButton()
         cacel = QtWidgets.QPushButton()
 
-        msg = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning, u"close", u"close?")
+        msg = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning, u"关闭", u"关闭?")
 
         msg.addButton(ok,QtWidgets.QMessageBox.ActionRole)
         msg.addButton(cacel, QtWidgets.QMessageBox.RejectRole)
-        ok.setText(u'Yes')
-        cacel.setText(u'Cancel')
+        ok.setText(u'是')
+        cacel.setText(u'否')
         # msg.setDetailedText('sdfsdff')
         if msg.exec_() == QtWidgets.QMessageBox.RejectRole:
             event.ignore()
         else:
-            #             self.socket_client.send_command(self.socket_client.current_user_command)
             if self.cap.isOpened():
                 self.cap.release()
             if self.timer_camera.isActive():
@@ -343,6 +346,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
                         1)
             cv2.putText(self.image, str('time:') + str(tx), (result[i]['box'][0] + 10, result[i]['box'][1] + 10),
                         cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1)
+        
 
 app = QtWidgets.QApplication(sys.argv)
 ui = Ui_MainWindow()
