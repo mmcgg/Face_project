@@ -3,7 +3,9 @@ import sys
 from PyQt5 import QtCore, QtGui,QtWidgets
 from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QRect
 from PyQt5.QtWidgets import QApplication, QLineEdit, QInputDialog, QGridLayout, QLabel, QPushButton, QFrame, QWidget,QMenu
+from PyQt5.QtCore import  QThread, QThreadPool
 import os
+
 sys.setrecursionlimit(1000000)
 
 
@@ -48,76 +50,6 @@ def detect_face(img):
         cv2.rectangle(img, (bouding_boxes[0], bouding_boxes[1]),
                       (bouding_boxes[0] + bouding_boxes[2], bouding_boxes[1] + bouding_boxes[3]), (255, 0, 0), 2)
     return img
-# detection_recognition module:
-def detection_recognition(img):
-    name_list=[]
-    result = datas.detector.detect_faces(img)
-    if len(result) == 0:
-        name_list.append(-1)
-        return img,name_list
-    aligment_imgs = []
-    originfaces = []
-    # 检测，标定landmark
-    for face in result:
-        temp_landmarks = []
-        bouding_boxes = face['box']
-        keypoints = face['keypoints']
-
-        cv2.rectangle(img, (bouding_boxes[0], bouding_boxes[1]),
-                      (bouding_boxes[0] + bouding_boxes[2], bouding_boxes[1] + bouding_boxes[3]), (255, 0, 0), 2)
-
-        faces = img[bouding_boxes[1]:bouding_boxes[1] + bouding_boxes[3],
-                bouding_boxes[0]:bouding_boxes[0] + bouding_boxes[2]]
-        originfaces.append(faces)
-        lefteye = keypoints['left_eye']
-        righteye = keypoints['right_eye']
-        nose = keypoints['nose']
-        mouthleft = keypoints['mouth_left']
-        mouthright = keypoints['mouth_right']
-        temp_landmarks.append(lefteye[0])
-        temp_landmarks.append(lefteye[1])
-        temp_landmarks.append(righteye[0])
-        temp_landmarks.append(righteye[1])
-        temp_landmarks.append(nose[0])
-        temp_landmarks.append(nose[1])
-        temp_landmarks.append(mouthleft[0])
-        temp_landmarks.append(mouthleft[1])
-        temp_landmarks.append(mouthright[0])
-        temp_landmarks.append(mouthright[1])
-        for i, num in enumerate(temp_landmarks):
-            if i % 2:
-                temp_landmarks[i] = num - bouding_boxes[1]
-            else:
-                temp_landmarks[i] = num - bouding_boxes[0]
-
-        faces = DataPrepare.alignment(faces, temp_landmarks)
-        faces = np.transpose(faces, (2, 0, 1)).reshape(1, 3, 112, 96)
-        faces = (faces - 127.5) / 128.0
-        aligment_imgs.append(faces)
-    length = len(aligment_imgs)
-    aligment_imgs = np.array(aligment_imgs)
-    aligment_imgs = np.reshape(aligment_imgs, (length, 3, 112, 96))
-    output_imgs_features = datas.get_imgs_features(aligment_imgs)
-    cos_distances_list = []
-    result_index = []
-    for img_feature in output_imgs_features:
-        cos_distance_list = [datas.cal_cosdistance(img_feature, test_img_feature) for test_img_feature in imgs_features]
-        cos_distances_list.append(cos_distance_list)
-    for imgfeature in cos_distances_list:
-        if max(imgfeature) < thres:
-            result_index.append(-1)
-        else:
-            result_index.append(imgfeature.index(max(imgfeature)))
-    for i, index in enumerate(result_index):
-        name = imgs_name_list[i]
-        name_list.append(name)
-        tx = time.strftime('%Y-%m-%d %H:%M:%S')
-        cv2.putText(img, name, (result[i]['box'][0], result[i]['box'][1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 1)
-        cv2.putText(img, str('Age:') + str(int(face_ages)), (result[i]['box'][0] + 10, result[i]['box'][1] + 20),
-                    cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 0, 0), 1)
-        cv2.putText(img, str('time:') + str(tx), (result[i]['box'][0] + 10, result[i]['box'][1] + 10),
-                    cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1)
-    return img,name_list
 
 ##add new face
 def add_new_face(img, name):
@@ -165,7 +97,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.label_show_camera = QtWidgets.QLabel()
 
         
-        self.label_show_camera.setFixedSize(600, 600)
+        self.label_show_camera.setFixedSize(800, 600)
         self.label_show_camera.setAutoFillBackground(False)
 
 
@@ -218,8 +150,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
             self.ac_open_cama.setText('打开相机')
     def show_camera(self):
         flag, self.image= self.cap.read()
-        if self.recognition_flag==True:
-            self.detect_recognition()
         show = cv2.resize(self.image, (800, 600))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
@@ -351,5 +281,4 @@ class Ui_MainWindow(QtWidgets.QWidget):
 app = QtWidgets.QApplication(sys.argv)
 ui = Ui_MainWindow()
 ui.show()
-ui.scrollAreaWidgetContents.show()
 sys.exit(app.exec_())
