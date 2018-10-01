@@ -10,8 +10,8 @@ def arr2str(arr):
 
 def insert(name, age, vec, visit_time):
     ''''''
-    connection = pymysql.connect(host='localhost',
-                         user='root',
+    connection = pymysql.connect(host='192.168.174.143',
+                         user='getluo',
                          password='getluo',
                          db='TESTDB',
                          charset='utf8mb4',
@@ -46,5 +46,5 @@ def insert(name, age, vec, visit_time):
     connection.close()
 
 if __name__ == "__main__":
-    insert(['luo', 'guo'], [20, 20], [[1, 2, 3], [4, 5, 6]], ['2018-07-23 11:10:11', '2018-07-28 09:11:11'])
+    insert(['lrrr', 'rrrrrr'], [20, 20], [[1, 2, 3], [4, 5, 6]], ['2018-07-23 11:10:11', '2018-07-28 09:11:11'])
     print("insert data into the db successfully")
