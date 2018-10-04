@@ -214,6 +214,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
                 self.timer_camera.stop()
             event.accept()
 
+
 class DetectionThread(QThread):
 
     def __init__(self):
