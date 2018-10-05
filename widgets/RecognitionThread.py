@@ -1,30 +1,45 @@
-from __future__ import print_function
+##识别算法的线程，完成后发出信号让主线程显示
+
 import sys
-from PyQt5 import QtCore, QtGui,QtWidgets
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QRect
-from PyQt5.QtWidgets import QApplication, QLineEdit, QInputDialog, QGridLayout, QLabel, QPushButton, QFrame, QWidget,QMenu
+from PyQt5.QtCore import QThread, QThreadPool
+import os
+sys.setrecursionlimit(1000000)
+
+import cv2
+import numpy as np
 
 
 
-# 显示相机的窗口
+class Showface(QtWidgets.QScrollArea):
+    def __init__(self, parent=None):
+        super(Showface, self).__init__(parent)
 
-class CameraWidget(QtWidgets.QWidget):
-    def __init__(self):
-        super(Ui_MainWindow, self).__init__(parent)
-
-        #相机区域
-
-        self.timer_camera = QtCore.QTimer()
-        self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0
-
         self.resize(1022, 670)
+
         self.set_ui()
         self.slot_init()
+
+
+        #初始化右键下拉菜单
+        self.initMenu()
+        self.initAnimation()
     def set_ui(self):
         self.nameLable = QLabel(" ")
         self.__layout_main = QtWidgets.QHBoxLayout()
         self.__layout_data_show = QtWidgets.QVBoxLayout()
+
+        #Scroll area reset
+        self.scrollArea = QtWidgets.QScrollArea()
+        self.scrollArea.setGeometry(QtCore.QRect(830, 0, 291, 751))
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        #为scroll area 添加一个布局
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 289, 749))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+
+
         self.label_show_camera = QtWidgets.QLabel()
 
         
@@ -35,11 +50,53 @@ class CameraWidget(QtWidgets.QWidget):
         self.__layout_main.addWidget(self.label_show_camera)
 
         self.setLayout(self.__layout_main)
+
+    def contextMenuEvent(self, event):
+        pos = event.globalPos()
+        size = self._contextMenu.sizeHint()
+        x, y, w, h = pos.x(), pos.y(), size.width(), size.height()
+        self._animation.stop()
+        self._animation.setStartValue(QRect(x, y, 0, 0))
+        self._animation.setEndValue(QRect(x, y, w, h))
+        self._animation.start()
+        self._contextMenu.exec_(event.globalPos())
+
+    def initMenu(self):
+        self._contextMenu = QMenu(self)
+        self.ac_open_cama = self._contextMenu.addAction('打开相机', self.button_open_camera_click)
+        self.ac_detection = self._contextMenu.addAction('识别', self.button_detection_click)
+        self.ac_record = self._contextMenu.addAction('记录', self.button_record_click)
+    def initAnimation(self):
+        # 按钮动画
+        self._animation = QPropertyAnimation(
+            self._contextMenu, b'geometry', self,
+            easingCurve=QEasingCurve.Linear, duration=300)
+        # easingCurve 修改该变量可以实现不同的效果
+
+
     def slot_init(self):
 
         self.timer_camera.timeout.connect(self.show_camera)
+
+    def button_open_camera_click(self):
+        if self.timer_camera.isActive() == False:
+            flag = self.cap.open(self.CAM_NUM)
+            if flag == False:
+                msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please check you have connected your camera", buttons=QtWidgets.QMessageBox.Ok,
+                                                defaultButton=QtWidgets.QMessageBox.Ok)
+        
+            else:
+                self.timer_camera.start(50)
+                self.ac_open_cama.setText('关闭相机')
+        else:
+            self.timer_camera.stop()
+            self.cap.release()
+            self.label_show_camera.clear()
+            self.ac_open_cama.setText('打开相机')
     def show_camera(self):
         flag, self.image= self.cap.read()
+        if self.recognition_flag==True:
+            self.detect_recognition()
         show = cv2.resize(self.image, (800, 600))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
