@@ -32,12 +32,6 @@ imgs_name_list.append('unknown')
 
 resize_x_y = (1600, 900)
 resize_face = (250, 250)
-pad = 15
-cap = cv2.VideoCapture(0)
-frame_do = 20
-frame_recog = 5
-flag1 = 0
-flag2 = 0
 
 
 # 总窗口
