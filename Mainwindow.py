@@ -80,7 +80,6 @@ class Ui_MainWindow(QWidget):
         self.__layout_main.addWidget(self.label_show_camera)
         self.setLayout(self.__layout_main)
 
-        
 
     def contextMenuEvent(self, event):
         pos = event.globalPos()
@@ -179,7 +178,10 @@ class Ui_MainWindow(QWidget):
     def ShowInTab(self,bound0,bound1,bound2,bound3, name):
         self.face = self.Lastimg[bound1:bound1 + bound3,
                     bound0:bound0 + bound2]
-        self.
+        show = cv2.resize(self.face, (200,150))
+        show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
+        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
+        self.label_show_camera.setPixmap(QtGui.QPixmap.fromImage(showImage))
     def closeEvent(self, event):
         ok = QtWidgets.QPushButton()
         cacel = QtWidgets.QPushButton()
