@@ -288,9 +288,11 @@ class DetectionThread(QThread):
                 result_index.append(imgfeature.index(max(imgfeature)))
         for i, index in enumerate(result_index):
             name = imgs_name_list[i]
+            bound = result[i]['box']
+            #发送信号
+            self.Bound_Name.emit(bound[1],bound[1]+bound[3],bound[0],bound[0]+bound[2],name)
 
-    def finished(self):
-        pass
+
 
 
 app = QtWidgets.QApplication(sys.argv)
