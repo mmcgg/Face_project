@@ -18,17 +18,7 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-thres = 0.5  # threshold for recognition
 
-# load recognition model
-datas = DataPrepare.ImagePrepare('images')
-imgs_alignment = datas.imgs_after_alignment
-imgs_features = datas.get_imgs_features(imgs_alignment)
-imgs_name_list = datas.imgs_name_list
-for i, img_name in enumerate(imgs_name_list):
-    img_name = img_name.split('.')[0]
-    imgs_name_list[i] = img_name
-imgs_name_list.append('unknown')
 
 resize_x_y = (1600, 900)
 resize_face = (250, 250)
@@ -74,29 +64,41 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.nameLable = QLabel(" ")
         self.__layout_main = QtWidgets.QHBoxLayout()
         self.__layout_data_show = QtWidgets.QVBoxLayout()
+        #tab菜单加载
+        self.showface = QtWidgets.QTabWidget(self)
+        self.showface.setGeometry(QtCore.QRect(740, 80, 351, 691))
+        self.showface.setObjectName("showface")
+        self.tab = QtWidgets.QWidget()
+        self.tab.setObjectName("tab")
+        self.horizontalLayoutWidget_2 = QtWidgets.QWidget(self.tab)
+        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(20, 20, 301, 611))
+        self.horizontalLayoutWidget_2.setObjectName("horizontalLayoutWidget_2")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_2)
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.listView = QtWidgets.QListView(self.horizontalLayoutWidget_2)
+        self.listView.setObjectName("listView")
+        self.horizontalLayout_2.addWidget(self.listView)
+        self.showface.addTab(self.tab, "第一页")
+        self.tab_2 = QtWidgets.QWidget()
+        self.tab_2.setObjectName("tab_2")
+        self.listView_2 = QtWidgets.QListView(self.tab_2)
+        self.listView_2.setGeometry(QtCore.QRect(20, 20, 299, 609))
+        self.listView_2.setObjectName("listView_2")
+        self.showface.addTab(self.tab_2, "第二页")
 
-        #Scroll area reset
-        self.scrollArea = QtWidgets.QScrollArea()
-        self.scrollArea.setGeometry(QtCore.QRect(830, 0, 291, 751))
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setObjectName("scrollArea")
-        #为scroll area 添加一个布局
-        self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 289, 749))
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-
-
+        #用于显示图像的Label
         self.label_show_camera = QtWidgets.QLabel()
 
         
-        self.label_show_camera.setFixedSize(800, 600)
+        self.label_show_camera.resize(800,600)
         self.label_show_camera.setAutoFillBackground(False)
 
 
         self.__layout_main.addWidget(self.label_show_camera)
 
+        self.__layout_main.addWidget(self.showface)
         self.setLayout(self.__layout_main)
-
     def contextMenuEvent(self, event):
         pos = event.globalPos()
         size = self._contextMenu.sizeHint()
@@ -109,9 +111,9 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
     def initMenu(self):
         self._contextMenu = QMenu(self)
-        self.ac_open_cama = self._contextMenu.addAction('打开相机', self.button_open_camera_click)
-        self.ac_detection = self._contextMenu.addAction('识别', self.button_detection_click)
-        self.ac_record = self._contextMenu.addAction('记录', self.button_record_click)
+        self.ac_open_cama = self._contextMenu.addAction('打开相机', self.CameraOperation())
+        self.ac_detection = self._contextMenu.addAction('识别', self.RecognitionOn())
+        self.ac_record = self._contextMenu.addAction('记录', self.Record())
     def initAnimation(self):
         # 按钮动画
         self._animation = QPropertyAnimation(
@@ -125,7 +127,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.timer_camera.timeout.connect(self.show_camera)
 
     #打开相机操作
-    def button_open_camera_click(self):
+    def CameraOperation(self):
         if self.timer_camera.isActive() == False:
             flag = self.cap.open(self.CAM_NUM)
             if flag == False:
@@ -149,9 +151,9 @@ class Ui_MainWindow(QtWidgets.QWidget):
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
         self.label_show_camera.setPixmap(QtGui.QPixmap.fromImage(showImage))
 
-    def button_detection_click(self):
+    def RecognitionOn(self):
         if self.timer_camera.isActive()==False:
-            msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"pleas open your camara", buttons=QtWidgets.QMessageBox.Ok,
+            msg = QtWidgets.QMessageBox.warning(self, u"warning", u"没有检测到摄像头", buttons=QtWidgets.QMessageBox.Ok,
                                                 defaultButton=QtWidgets.QMessageBox.Ok)
 
         else:
@@ -210,12 +212,29 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
 
 class DetectionThread(QThread):
-
+    #传出的信号为图片中人脸的位置矩形以及识别出的人名
+    self.Bound_Name = pyqtSignal[int, int, int, int,str]
     def __init__(self):
         super(DetectionThread, self).__init__()
+        #为自己导入模型
+        thres = 0.5  # threshold for recognition
 
-    def run(self, img):
-        result = datas.detector.detect_faces(img)
+        # load recognition model
+        datas = DataPrepare.ImagePrepare('images')
+        imgs_alignment = datas.imgs_after_alignment
+        imgs_features = datas.get_imgs_features(imgs_alignment)
+        imgs_name_list = datas.imgs_name_list
+        for i, img_name in enumerate(imgs_name_list):
+            img_name = img_name.split('.')[0]
+            imgs_name_list[i] = img_name
+        imgs_name_list.append('unknown')
+
+    def SetImg(self,img):
+        self.img = img
+        #传入图片后执行run方法
+        self.start()
+    def run(self):
+        result = datas.detector.detect_faces(self.img)
         aligment_imgs = []
         originfaces = []
         # 检测，标定landmark
@@ -223,9 +242,6 @@ class DetectionThread(QThread):
             temp_landmarks = []
             bouding_boxes = face['box']
             keypoints = face['keypoints']
-
-            cv2.rectangle(img, (bouding_boxes[0], bouding_boxes[1]),
-                          (bouding_boxes[0] + bouding_boxes[2], bouding_boxes[1] + bouding_boxes[3]), (255, 0, 0), 2)
 
             faces = img[bouding_boxes[1]:bouding_boxes[1] + bouding_boxes[3],
                     bouding_boxes[0]:bouding_boxes[0] + bouding_boxes[2]]
@@ -272,13 +288,10 @@ class DetectionThread(QThread):
                 result_index.append(imgfeature.index(max(imgfeature)))
         for i, index in enumerate(result_index):
             name = imgs_name_list[i]
-            tx = time.strftime('%Y-%m-%d %H:%M:%S')
-            cv2.putText(img, name, (result[i]['box'][0], result[i]['box'][1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0),
-                        1)
-            cv2.putText(img, str('time:') + str(tx), (result[i]['box'][0] + 10, result[i]['box'][1] + 10),
-                        cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1)
 
-        return img
+    def finished(self):
+        pass
+
 
 app = QtWidgets.QApplication(sys.argv)
 ui = Ui_MainWindow()

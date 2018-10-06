@@ -1,4 +1,4 @@
-##识别算法的线程，完成后发出信号让主线程显示
+##识别算法的线程，完成后发出信号让主线程进行显示
 
 import sys
 from PyQt5.QtCore import QThread, QThreadPool
@@ -7,6 +7,10 @@ sys.setrecursionlimit(1000000)
 
 import cv2
 import numpy as np
+
+
+
+
 
 
 

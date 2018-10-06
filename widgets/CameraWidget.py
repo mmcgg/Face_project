@@ -6,167 +6,21 @@ from PyQt5.QtWidgets import QApplication, QLineEdit, QInputDialog, QGridLayout, 
 
 
 
-# 显示相机的窗口
+# 显示相机的窗口(继承label的一个类
 
-class CameraWidget(QtWidgets.QWidget):
+class CameraWidget(QtWidgets.QLabel):
     def __init__(self):
-        super(Ui_MainWindow, self).__init__(parent)
+        super(CameraWidget, self).__init__(parent)
 
         #相机区域
 
         self.timer_camera = QtCore.QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0
+        self.resize(800,600)
 
-        self.resize(1022, 670)
-        self.set_ui()
-        self.slot_init()
-    def set_ui(self):
-        self.nameLable = QLabel(" ")
-        self.__layout_main = QtWidgets.QHBoxLayout()
-        self.__layout_data_show = QtWidgets.QVBoxLayout()
-        self.label_show_camera = QtWidgets.QLabel()
+    def On_Capture(self):
 
-        
-        self.label_show_camera.setFixedSize(600, 600)
-        self.label_show_camera.setAutoFillBackground(False)
-
-
-        self.__layout_main.addWidget(self.label_show_camera)
-
-        self.setLayout(self.__layout_main)
-    def slot_init(self):
-
-        self.timer_camera.timeout.connect(self.show_camera)
-    def show_camera(self):
-        flag, self.image= self.cap.read()
-        show = cv2.resize(self.image, (800, 600))
-        show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
-        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
-        self.label_show_camera.setPixmap(QtGui.QPixmap.fromImage(showImage))
-
-    def button_detection_click(self):
-        if self.timer_camera.isActive()==False:
-            msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"pleas open your camara", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-
-        else:
-            if self.recognition_flag==False:
-                self.recognition_flag=True
-
-            else:
-                self.recognition_flag=False
-
-
-    def button_record_click(self):
-        if self.timer_camera.isActive()==False:
-            msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"please open your camara", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-        else:
-            if self.recognition_flag==False:
-                msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"you are not using recognition", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-            else:
-                file=open('record.txt','a')
-                file.write('name: ')
-                file.write(str(self.name_list))
-                tx = time.strftime('%Y-%m-%d %H:%M:%S')
-                file.write('\n')
-                file.write(tx)
-                file.close()
-
-    def button_wrtieface_click(self):
-        if self.timer_camera.isActive() == False:
-            msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please open your camara ", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-        else:
-            name,ok = QInputDialog.getText(self, "Your name ", "Your name",
-                                            QLineEdit.Normal, self.nameLable.text())
-            if(ok and (len(name)!=0)):
-                add_new_face(self.image,name)
-    def closeEvent(self, event):
-        ok = QtWidgets.QPushButton()
-        cacel = QtWidgets.QPushButton()
-
-        msg = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning, u"close", u"close?")
-
-        msg.addButton(ok,QtWidgets.QMessageBox.ActionRole)
-        msg.addButton(cacel, QtWidgets.QMessageBox.RejectRole)
-        ok.setText(u'Yes')
-        cacel.setText(u'Cancel')
-        # msg.setDetailedText('sdfsdff')
-        if msg.exec_() == QtWidgets.QMessageBox.RejectRole:
-            event.ignore()
-        else:
-            #             self.socket_client.send_command(self.socket_client.current_user_command)
-            if self.cap.isOpened():
-                self.cap.release()
-            if self.timer_camera.isActive():
-                self.timer_camera.stop()
-            event.accept()
-    def detect_recognition(self):
-        result = datas.detector.detect_faces(self.image)
-        aligment_imgs = []
-        originfaces = []
-        # 检测，标定landmark
-        for face in result:
-            temp_landmarks = []
-            bouding_boxes = face['box']
-            keypoints = face['keypoints']
-
-            cv2.rectangle(self.image, (bouding_boxes[0], bouding_boxes[1]),
-                          (bouding_boxes[0] + bouding_boxes[2], bouding_boxes[1] + bouding_boxes[3]), (255, 0, 0), 2)
-
-            faces = self.image[bouding_boxes[1]:bouding_boxes[1] + bouding_boxes[3],
-                    bouding_boxes[0]:bouding_boxes[0] + bouding_boxes[2]]
-            originfaces.append(faces)
-            lefteye = keypoints['left_eye']
-            righteye = keypoints['right_eye']
-            nose = keypoints['nose']
-            mouthleft = keypoints['mouth_left']
-            mouthright = keypoints['mouth_right']
-            temp_landmarks.append(lefteye[0])
-            temp_landmarks.append(lefteye[1])
-            temp_landmarks.append(righteye[0])
-            temp_landmarks.append(righteye[1])
-            temp_landmarks.append(nose[0])
-            temp_landmarks.append(nose[1])
-            temp_landmarks.append(mouthleft[0])
-            temp_landmarks.append(mouthleft[1])
-            temp_landmarks.append(mouthright[0])
-            temp_landmarks.append(mouthright[1])
-            for i, num in enumerate(temp_landmarks):
-                if i % 2:
-                    temp_landmarks[i] = num - bouding_boxes[1]
-                else:
-                    temp_landmarks[i] = num - bouding_boxes[0]
-
-            faces = DataPrepare.alignment(faces, temp_landmarks)
-            faces = np.transpose(faces, (2, 0, 1)).reshape(1, 3, 112, 96)
-            faces = (faces - 127.5) / 128.0
-            aligment_imgs.append(faces)
-        length = len(aligment_imgs)
-        aligment_imgs = np.array(aligment_imgs)
-        aligment_imgs = np.reshape(aligment_imgs, (length, 3, 112, 96))
-        output_imgs_features = datas.get_imgs_features(aligment_imgs)
-        cos_distances_list = []
-        result_index = []
-        for img_feature in output_imgs_features:
-            cos_distance_list = [datas.cal_cosdistance(img_feature, test_img_feature) for test_img_feature in
-                                 imgs_features]
-            cos_distances_list.append(cos_distance_list)
-        for imgfeature in cos_distances_list:
-            if max(imgfeature) < thres:
-                result_index.append(-1)
-            else:
-                result_index.append(imgfeature.index(max(imgfeature)))
-        for i, index in enumerate(result_index):
-            name = imgs_name_list[i]
-            tx = time.strftime('%Y-%m-%d %H:%M:%S')
-            cv2.putText(self.image, name, (result[i]['box'][0], result[i]['box'][1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0),
-                        1)
-            cv2.putText(self.image, str('time:') + str(tx), (result[i]['box'][0] + 10, result[i]['box'][1] + 10),
-                        cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1)
 
 app = QtWidgets.QApplication(sys.argv)
 ui = Ui_MainWindow()
