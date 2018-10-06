@@ -2,8 +2,7 @@ from __future__ import print_function
 import sys
 from PyQt5 import QtCore, QtGui,QtWidgets
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QApplication, QLineEdit, QInputDialog, QGridLayout, QLabel, QPushButton, QFrame, QWidget,QMenu
-from PyQt5.QtCore import  QThread, QThreadPool
+from PyQt5.QtWidgets import *
 import os
 
 sys.setrecursionlimit(1000000)
@@ -20,7 +19,7 @@ from DetectionThread import DetectionThread
 warnings.filterwarnings('ignore')
 
 
-class Ui_MainWindow(QtWidgets.QWidget):
+class Ui_MainWindow(QWidget):
     def __init__(self, parent=None):
         super(Ui_MainWindow, self).__init__(parent)
 
@@ -48,11 +47,14 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.nameLable = QLabel(" ")
         self.__layout_main = QtWidgets.QHBoxLayout()
         self.__layout_data_show = QtWidgets.QVBoxLayout()
+
+
         #tab菜单加载
         self.showface = QtWidgets.QTabWidget(self)
         self.showface.setObjectName("showface")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
+
         self.horizontalLayoutWidget_2 = QtWidgets.QWidget(self.tab)
         self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(20, 20, 301, 611))
         self.horizontalLayoutWidget_2.setObjectName("horizontalLayoutWidget_2")
@@ -76,9 +78,9 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
 
         self.__layout_main.addWidget(self.label_show_camera)
-        self.__layout_main.addWidget(self.showface)
         self.setLayout(self.__layout_main)
 
+        
 
     def contextMenuEvent(self, event):
         pos = event.globalPos()
@@ -143,7 +145,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
             #启动识别算法线程
             self.image = self.cap.read()
             self.FaceThread.SetImg(self.image)
-
+            self.Lastimg  = self.image
 
     def button_record_click(self):
         if self.timer_camera.isActive()==False:
@@ -174,8 +176,10 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
 
 
-    def ShowInTab(self):
-
+    def ShowInTab(self,bound0,bound1,bound2,bound3, name):
+        self.face = self.Lastimg[bound1:bound1 + bound3,
+                    bound0:bound0 + bound2]
+        self.
     def closeEvent(self, event):
         ok = QtWidgets.QPushButton()
         cacel = QtWidgets.QPushButton()
