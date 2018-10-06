@@ -1,7 +1,7 @@
 from __future__ import print_function
 import sys
 from PyQt5 import QtCore, QtGui,QtWidgets
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QRect
+from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QLineEdit, QInputDialog, QGridLayout, QLabel, QPushButton, QFrame, QWidget,QMenu
 from PyQt5.QtCore import  QThread, QThreadPool
 import os
@@ -16,28 +16,8 @@ import time
 import DataPrepare_v1 as DataPrepare
 import warnings
 
+from DetectionThread import DetectionThread
 warnings.filterwarnings('ignore')
-
-
-
-resize_x_y = (1600, 900)
-resize_face = (250, 250)
-
-
-# 总窗口
-def detect_face(img):
-    result = datas.detector.detect_faces(img)
-    for face in result:
-        temp_landmarks = []
-        bouding_boxes = face['box']
-        keypoints = face['keypoints']
-        cv2.rectangle(img, (bouding_boxes[0], bouding_boxes[1]),
-                      (bouding_boxes[0] + bouding_boxes[2], bouding_boxes[1] + bouding_boxes[3]), (255, 0, 0), 2)
-    return img
-
-##add new face
-def add_new_face(img, name):
-    cv2.imwrite("./images/" + str(name) + '.jpg', img)
 
 
 class Ui_MainWindow(QtWidgets.QWidget):
@@ -60,6 +40,10 @@ class Ui_MainWindow(QtWidgets.QWidget):
         #初始化右键下拉菜单
         self.initMenu()
         self.initAnimation()
+
+        #人脸识别算法线程
+        self.FaceThread  = DetectionThread()
+
     def set_ui(self):
         self.nameLable = QLabel(" ")
         self.__layout_main = QtWidgets.QHBoxLayout()
@@ -121,11 +105,12 @@ class Ui_MainWindow(QtWidgets.QWidget):
             easingCurve=QEasingCurve.Linear, duration=300)
         # easingCurve 修改该变量可以实现不同的效果
 
-
+    #定义信号槽
     def slot_init(self):
 
         self.timer_camera.timeout.connect(self.show_camera)
-
+        #人脸识别算法完成后在右边的tab widget 中显示
+        self.FaceThread.Bound_Name.connect(self.ShowInTab)
     #打开相机操作
     def CameraOperation(self):
         if self.timer_camera.isActive() == False:
@@ -142,6 +127,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
             self.cap.release()
             self.label_show_camera.clear()
             self.ac_open_cama.setText('打开相机')
+    #相机显示
     def show_camera(self):
         flag, self.image= self.cap.read()
         if self.recognition_flag ==True:
@@ -157,11 +143,9 @@ class Ui_MainWindow(QtWidgets.QWidget):
                                                 defaultButton=QtWidgets.QMessageBox.Ok)
 
         else:
-            if self.recognition_flag==False:
-                self.recognition_flag=True
-
-            else:
-                self.recognition_flag=False
+            #启动识别算法线程
+            self.image = self.cap.read()
+            self.FaceThread.SetImg(self.image)
 
 
     def button_record_click(self):
@@ -209,89 +193,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
             if self.timer_camera.isActive():
                 self.timer_camera.stop()
             event.accept()
-
-
-class DetectionThread(QThread):
-    #传出的信号为图片中人脸的位置矩形以及识别出的人名
-    self.Bound_Name = pyqtSignal[int, int, int, int,str]
-    def __init__(self):
-        super(DetectionThread, self).__init__()
-        #为自己导入模型
-        thres = 0.5  # threshold for recognition
-
-        # load recognition model
-        datas = DataPrepare.ImagePrepare('images')
-        imgs_alignment = datas.imgs_after_alignment
-        imgs_features = datas.get_imgs_features(imgs_alignment)
-        imgs_name_list = datas.imgs_name_list
-        for i, img_name in enumerate(imgs_name_list):
-            img_name = img_name.split('.')[0]
-            imgs_name_list[i] = img_name
-        imgs_name_list.append('unknown')
-
-    def SetImg(self,img):
-        self.img = img
-        #传入图片后执行run方法
-        self.start()
-    def run(self):
-        result = datas.detector.detect_faces(self.img)
-        aligment_imgs = []
-        originfaces = []
-        # 检测，标定landmark
-        for face in result:
-            temp_landmarks = []
-            bouding_boxes = face['box']
-            keypoints = face['keypoints']
-
-            faces = img[bouding_boxes[1]:bouding_boxes[1] + bouding_boxes[3],
-                    bouding_boxes[0]:bouding_boxes[0] + bouding_boxes[2]]
-            originfaces.append(faces)
-            lefteye = keypoints['left_eye']
-            righteye = keypoints['right_eye']
-            nose = keypoints['nose']
-            mouthleft = keypoints['mouth_left']
-            mouthright = keypoints['mouth_right']
-            temp_landmarks.append(lefteye[0])
-            temp_landmarks.append(lefteye[1])
-            temp_landmarks.append(righteye[0])
-            temp_landmarks.append(righteye[1])
-            temp_landmarks.append(nose[0])
-            temp_landmarks.append(nose[1])
-            temp_landmarks.append(mouthleft[0])
-            temp_landmarks.append(mouthleft[1])
-            temp_landmarks.append(mouthright[0])
-            temp_landmarks.append(mouthright[1])
-            for i, num in enumerate(temp_landmarks):
-                if i % 2:
-                    temp_landmarks[i] = num - bouding_boxes[1]
-                else:
-                    temp_landmarks[i] = num - bouding_boxes[0]
-
-            faces = DataPrepare.alignment(faces, temp_landmarks)
-            faces = np.transpose(faces, (2, 0, 1)).reshape(1, 3, 112, 96)
-            faces = (faces - 127.5) / 128.0
-            aligment_imgs.append(faces)
-        length = len(aligment_imgs)
-        aligment_imgs = np.array(aligment_imgs)
-        aligment_imgs = np.reshape(aligment_imgs, (length, 3, 112, 96))
-        output_imgs_features = datas.get_imgs_features(aligment_imgs)
-        cos_distances_list = []
-        result_index = []
-        for img_feature in output_imgs_features:
-            cos_distance_list = [datas.cal_cosdistance(img_feature, test_img_feature) for test_img_feature in
-                                 imgs_features]
-            cos_distances_list.append(cos_distance_list)
-        for imgfeature in cos_distances_list:
-            if max(imgfeature) < thres:
-                result_index.append(-1)
-            else:
-                result_index.append(imgfeature.index(max(imgfeature)))
-        for i, index in enumerate(result_index):
-            name = imgs_name_list[i]
-            bound = result[i]['box']
-            #发送信号
-            self.Bound_Name.emit(bound[1],bound[1]+bound[3],bound[0],bound[0]+bound[2],name)
-
 
 
 
