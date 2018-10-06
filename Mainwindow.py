@@ -50,7 +50,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.__layout_data_show = QtWidgets.QVBoxLayout()
         #tab菜单加载
         self.showface = QtWidgets.QTabWidget(self)
-        self.showface.setGeometry(QtCore.QRect(740, 80, 351, 691))
         self.showface.setObjectName("showface")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
@@ -70,19 +69,17 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.listView_2.setGeometry(QtCore.QRect(20, 20, 299, 609))
         self.listView_2.setObjectName("listView_2")
         self.showface.addTab(self.tab_2, "第二页")
-
         #用于显示图像的Label
         self.label_show_camera = QtWidgets.QLabel()
-
-        
         self.label_show_camera.resize(800,600)
         self.label_show_camera.setAutoFillBackground(False)
 
 
         self.__layout_main.addWidget(self.label_show_camera)
-
         self.__layout_main.addWidget(self.showface)
         self.setLayout(self.__layout_main)
+
+
     def contextMenuEvent(self, event):
         pos = event.globalPos()
         size = self._contextMenu.sizeHint()
@@ -174,6 +171,11 @@ class Ui_MainWindow(QtWidgets.QWidget):
                                             QLineEdit.Normal, self.nameLable.text())
             if(ok and (len(name)!=0)):
                 add_new_face(self.image,name)
+
+
+
+    def ShowInTab(self):
+
     def closeEvent(self, event):
         ok = QtWidgets.QPushButton()
         cacel = QtWidgets.QPushButton()

@@ -32,6 +32,7 @@ class DetectionThread(QThread):
         self.start()
     def run(self):
         result = datas.detector.detect_faces(self.img)
+        #如果没有检测出人脸，发出一个信号并且提前停止线程
         aligment_imgs = []
         originfaces = []
         # 检测，标定landmark
