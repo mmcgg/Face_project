@@ -1,3 +1,41 @@
+from __future__ import print_function
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
+from torch.autograd import Variable
+torch.backends.cudnn.bencmark = True
+import argparse
+
+import os
+import cv2
+import dlib
+import numpy as np
+from mtcnn.mtcnn import MTCNN
+
+
+
+import face_recognition
+from matlab_cp2tform import get_similarity_transform_for_cv2
+from PIL import Image
+from get_landmarks import get_five_points_landmarks
+import net_sphere
+
+
+
+parser = argparse.ArgumentParser(description='PyTorch sphereface lfw')
+parser.add_argument('--net','-n', default='sphere20a', type=str)
+parser.add_argument('--model','-m', default='../my_face_model/model/sphere20a_20171020.pth', type=str)
+args = parser.parse_args()
+
+net = getattr(net_sphere,args.net)()
+net.load_state_dict(torch.load(args.model))
+#net.cuda()
+net.eval()
+net.feature = True
+
+
 import sys
 from PyQt5.QtCore import *
 import cv2
@@ -9,7 +47,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import os
-
+from mtcnn.mtcnn import MTCNN
 
 sys.setrecursionlimit(1000000)
 myFolder = os.path.split(os.path.realpath(__file__))[0]
@@ -27,33 +65,8 @@ class AddFaceThread(QThread):
     Ask_name = pyqtSignal()
     def __init__(self):
         super(AddFaceThread, self).__init__()
-        #为自己导入模型
-        self.thres = 0.5  # threshold for recognition
+        self.detector = MTCNN()
 
-        # load recognition model
-        self.datas = DataPrepare.ImagePrepare('images')
-        self.imgs_alignment = self.datas.imgs_after_alignment
-        self.imgs_features = self.datas.get_imgs_features(self.imgs_alignment)
-        self.imgs_name_list = self.datas.imgs_name_list
-        for i, img_name in enumerate(self.imgs_name_list):
-            self.img_name = img_name.split('.')[0]
-            self.imgs_name_list[i] = self.img_name
-        self.imgs_name_list.append('unknown')
-
-        self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
-    def Refresh(self,thres = 0.5):
-        #为自己导入模型
-        self.thres = thres  # threshold for recognition
-
-        # load recognition model
-        self.datas = DataPrepare.ImagePrepare('images')
-        self.imgs_alignment = self.datas.imgs_after_alignment
-        self.imgs_features = self.datas.get_imgs_features(imgs_alignment)
-        self.imgs_name_list = self.datas.imgs_name_list
-        for i, img_name in enumerate(self.imgs_name_list):
-            self.img_name = img_name.split('.')[0]
-            self.imgs_name_list[i] = self.img_name
-        self.imgs_name_list.append('unknown')
     def SetImg(self,img):
         self.img = img
         #传入图片后执行run方法
@@ -67,17 +80,14 @@ class AddFaceThread(QThread):
             areas.append(bounding_boxes[3]*bounding_boxes[2])
         return areas.index(max(areas))
 
-    def getInfo(self,name):
-        self.name = name
     def run(self):
-
-        result = self.datas.detector.detect_faces(self.img)
+        result = self.detector.detect_faces(self.img)
         #如果没有检测出人脸，发出一个信号并且提前停止线程
         if len(result) == 0 :
             self.No_face.emit()
             return
         aligment_imgs = []
-
+        temp_landmarks = []
         maxIndex = self.Cal_Area_Index(result)
         face = result[maxIndex]
 
@@ -109,7 +119,7 @@ class AddFaceThread(QThread):
             else:
                 temp_landmarks[i] = num - bouding_boxes[0]
 
-        faces = DataPrepare.alignment(faces, temp_landmarks)
+        faces = self.alignment(faces, temp_landmarks)
         faces = np.transpose(faces, (2, 0, 1)).reshape(1, 3, 112, 96)
         faces = (faces - 127.5) / 128.0
         aligment_imgs.append(faces)
@@ -117,7 +127,7 @@ class AddFaceThread(QThread):
         aligment_imgs = np.array(aligment_imgs)
         aligment_imgs = np.reshape(aligment_imgs, (length, 3, 112, 96))
         #获取feature 向量
-        output_imgs_features = self.datas.get_imgs_features(aligment_imgs)
+        output_imgs_features = self.get_imgs_features(aligment_imgs)
         self.Bound_box.emit(bouding_boxes[1],bouding_boxes[1]+bouding_boxes[3],bouding_boxes[0],bouding_boxes[0]+bouding_boxes[2])
         #获取名称
         name,ok = QInputDialog.getText(self, "Your name ", "Your name",
@@ -128,3 +138,30 @@ class AddFaceThread(QThread):
 
 
 
+    def cal_cosdistance(self, vec1, vec2):
+        vec1 = np.reshape(vec1, (1, -1))
+        vec2 = np.reshape(vec2, (-1, 1))
+        length1 = np.sqrt(np.square(vec1).sum())
+        length2 = np.sqrt(np.square(vec2).sum())
+        cosdistance = vec1.dot(vec2) / (length1 * length2)
+        cosdistance = cosdistance[0][0]
+        return cosdistance
+
+    def get_imgs_features(self, imgs_alignment):
+        input_images = Variable(torch.from_numpy(imgs_alignment).float(), volatile=True)
+        output_features = net(input_images)
+        output_features = output_features.data.numpy()
+        return output_features
+
+    def alignment(self,src_img,src_pts):
+        ref_pts = [ [30.2946, 51.6963],[65.5318, 51.5014],
+            [48.0252, 71.7366],[33.5493, 92.3655],[62.7299, 92.2041] ]
+        crop_size = (96, 112)
+        src_pts = np.array(src_pts).reshape(5,2)
+
+        s = np.array(src_pts).astype(np.float32)
+        r = np.array(ref_pts).astype(np.float32)
+
+        tfm = get_similarity_transform_for_cv2(s, r)
+        face_img = cv2.warpAffine(src_img, tfm, crop_size)
+        return face_img

@@ -29,6 +29,9 @@ class Ui_MainWindow(QWidget):
     def __init__(self, parent=None):
         super(Ui_MainWindow, self).__init__(parent)
 
+
+
+        self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         #相机区域
         #人脸识别算法线程
         self.FaceThread = DetectionThread()
@@ -50,8 +53,7 @@ class Ui_MainWindow(QWidget):
         self.initMenu()
         self.initAnimation()
 
-        #数据库操作工具
-        self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
+
 
     def set_ui(self):
         self.resize(1114, 861)
@@ -426,6 +428,7 @@ class Ui_MainWindow(QWidget):
                                                 defaultButton=QtWidgets.QMessageBox.Ok)
         else:
             img = self.cap.read()
+            self.AddFaceThread.SetImg(img)
 
 
     def InputName(self):

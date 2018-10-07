@@ -50,94 +50,12 @@ class ImagePrepare(object):
 
     def __init__(self, path):
         super(ImagePrepare, self).__init__()
-        self.img_data = []
-        self.landmarks = []
+
         self.path = path
         self.detector=MTCNN()
         self.imgs_name_list = []
         self.imgs_after_alignment = []
-        self.image_data_prepare()
         self.get_alignment()
-
-    def image_data_prepare(self):
-        #detector = dlib.get_frontal_face_detector()
-        self.imgs_name_list = os.listdir(self.path)
-        print(self.imgs_name_list)
-        for img_name in self.imgs_name_list:
-            temp_landmarks = []
-            img = cv2.imread(self.path + '/' + img_name)
-            if img.shape == (500, 500, 3):
-                self.img_data.append(img)
-                face_location = self.detector.detect_faces(img)[0]
-                print(face_location)
-                left_eye = face_location['keypoints']['left_eye']
-                right_eye = face_location['keypoints']['right_eye']
-                nose = face_location['keypoints']['nose']
-                mouth_left = face_location['keypoints']['mouth_left']
-                mouth_right = face_location['keypoints']['mouth_right']
-                temp_landmarks.append(left_eye[0])
-                temp_landmarks.append(left_eye[1])
-                temp_landmarks.append(right_eye[0])
-                temp_landmarks.append(right_eye[1])
-                temp_landmarks.append(nose[0])
-                temp_landmarks.append(nose[1])
-                temp_landmarks.append(mouth_left[0])
-                temp_landmarks.append(mouth_left[1])
-                temp_landmarks.append(mouth_right[0])
-                temp_landmarks.append(mouth_right[1])
-                self.landmarks.append(temp_landmarks)
-                continue
-            #face_location = detector(img, 1)
-            face_location = self.detector.detect_faces(img)[0]
-            bounding_box = face_location['box']
-            pad=10
-            top=bounding_box[1]-pad
-            bottom=bounding_box[1]+bounding_box[3]+pad
-            left=bounding_box[0]-pad
-            right=bounding_box[0]+bounding_box[2]+pad
-            if top<0:
-                top=0
-            if bottom>img.shape[0]:
-                bottom=img.shape[0]
-            if left<0:
-                left=0
-            if right>img.shape[1]:
-                right=img.shape[1]
-            img = img[top: bottom, left:right]
-            #img = cv2.resize(img, (500, 500))
-            #cv2.imwrite(self.path+'/'+img_name, img)
-            #if img.shape[0] != 250:
-            #img = cv2.resize(img, (250, 250))
-            #cv2.imwrite(self.path+'/'+img_name, img)
-            #detector = dlib.get_frontal_face_detector()
-            #face = detector(img, 1)[0]
-            #top = face.top()
-            #bottom = face.bottom()
-            #left = face.left()
-            #right = face.right()y
-            #img = img[top: bottom, left: right]
-            #img = cv2.resize(img, 250, 250)
-
-            face_location = self.detector.detect_faces(img)
-            print(len(face_location))
-            face_location=face_location[0]
-            left_eye = face_location['keypoints']['left_eye']
-            right_eye = face_location['keypoints']['right_eye']
-            nose = face_location['keypoints']['nose']
-            mouth_left = face_location['keypoints']['mouth_left']
-            mouth_right = face_location['keypoints']['mouth_right']
-            temp_landmarks.append(left_eye[0])
-            temp_landmarks.append(left_eye[1])
-            temp_landmarks.append(right_eye[0])
-            temp_landmarks.append(right_eye[1])
-            temp_landmarks.append(nose[0])
-            temp_landmarks.append(nose[1])
-            temp_landmarks.append(mouth_left[0])
-            temp_landmarks.append(mouth_left[1])
-            temp_landmarks.append(mouth_right[0])
-            temp_landmarks.append(mouth_right[1])
-            self.landmarks.append(temp_landmarks)
-            self.img_data.append(img)
 
     def get_alignment(self):
         for i in range(len(self.landmarks)):
