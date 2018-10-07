@@ -22,6 +22,7 @@ import warnings
 from PyMySQL import *
 
 from DetectionThread import DetectionThread
+from AddFaceThread import AddFaceThread
 warnings.filterwarnings('ignore')
 
 class Ui_MainWindow(QWidget):
@@ -31,6 +32,7 @@ class Ui_MainWindow(QWidget):
         #相机区域
         #人脸识别算法线程
         self.FaceThread = DetectionThread()
+        #添加新人脸的线程
         self.timer_camera = QtCore.QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0
@@ -47,7 +49,8 @@ class Ui_MainWindow(QWidget):
         self.initMenu()
         self.initAnimation()
 
-
+        #数据库操作工具
+        self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
     def set_ui(self):
         self.resize(1114, 861)
         self.horizontalLayoutWidget = QtWidgets.QWidget(self)
@@ -399,6 +402,7 @@ class Ui_MainWindow(QWidget):
         self.ac_open_cama = self._contextMenu.addAction('打开相机', self.CameraOperation)
         self.ac_detection = self._contextMenu.addAction('识别', self.RecognitionOn)
         self.ac_record = self._contextMenu.addAction('记录', self.Record)
+        self.ac_Addface = self._contextMenu.addAction('添加新人脸',self.AddFace)
     def initAnimation(self):
         # 按钮动画
         self._animation = QPropertyAnimation(
@@ -412,6 +416,18 @@ class Ui_MainWindow(QWidget):
         self.timer_camera.timeout.connect(self.show_camera)
         #人脸识别算法完成后在右边的tab widget 中显示
         self.FaceThread.Bound_Name.connect(self.ShowInTab)
+    def AddFace(self):
+        if self.timer_camera.isActive() == False:
+            flag = self.cap.open(self.CAM_NUM)
+            if flag == False:
+                msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please check you have connected your camera", buttons=QtWidgets.QMessageBox.Ok,
+                                                defaultButton=QtWidgets.QMessageBox.Ok)
+        else:
+            img = self.cap.read()
+
+
+    def InputName(self):
+        pass
     #打开相机操作
     def CameraOperation(self):
         if self.timer_camera.isActive() == False:
