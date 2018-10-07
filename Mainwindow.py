@@ -421,14 +421,15 @@ class Ui_MainWindow(QWidget):
         #人脸识别算法完成后在右边的tab widget 中显示
         self.FaceThread.Bound_Name.connect(self.ShowInTab)
     def AddFace(self):
-        if self.timer_camera.isActive() == False:
-            flag = self.cap.open(self.CAM_NUM)
-            if flag == False:
-                msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please check you have connected your camera", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-        else:
-            img = self.cap.read()
-            self.AddFaceThread.SetImg(img)
+        # if self.timer_camera.isActive() == False:
+        #     flag = self.cap.open(self.CAM_NUM)
+        #     if flag == False:
+        #         msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please check you have connected your camera", buttons=QtWidgets.QMessageBox.Ok,
+        #                                         defaultButton=QtWidgets.QMessageBox.Ok)
+        # else:
+        img = cv2.imread('.\images\gyf.jpg')
+        print('cap ok')
+        self.AddFaceThread.SetImg(img)
 
 
     def InputName(self):
@@ -452,6 +453,7 @@ class Ui_MainWindow(QWidget):
     #相机显示
     def show_camera(self):
         flag, self.image= self.cap.read()
+        print(self.image)
         show = cv2.resize(self.image, (800, 600))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0],QImage.Format_RGB888 )
@@ -485,15 +487,15 @@ class Ui_MainWindow(QWidget):
                 file.write(tx)
                 file.close()
 
-    def button_wrtieface_click(self):
-        if self.timer_camera.isActive() == False:
-            msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please open your camara ", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-        else:
-            name,ok = QInputDialog.getText(self, "Your name ", "Your name",
-                                            QLineEdit.Normal, self.nameLable.text())
-            if(ok and (len(name)!=0)):
-                add_new_face(self.image,name)
+    # def button_wrtieface_click(self):
+    #     if self.timer_camera.isActive() == False:
+    #         msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please open your camara ", buttons=QtWidgets.QMessageBox.Ok,
+    #                                             defaultButton=QtWidgets.QMessageBox.Ok)
+    #     else:
+    #         name,ok = QInputDialog.getText(self, "Your name ", "Your name",
+    #                                         QLineEdit.Normal, self.nameLable.text())
+    #         if(ok and (len(name)!=0)):
+    #             add_new_face(self.image,name)
 
 
 

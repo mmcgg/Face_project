@@ -36,9 +36,9 @@ class PyMySQL:
 
 		sql = """CREATE TABLE {0} (
 				 ID INT(11) NOT NULL AUTO_INCREMENT,
-				 NAME CHAR(30) NOT NULL COLLATE utf8_bin,
+				 NAME CHAR(50) NOT NULL COLLATE utf8_bin,
 				 AGE INT(4) NOT NULL,
-				 VECTOR CHAR(100) NOT NULL,
+				 VECTOR VARCHAR(20000) NOT NULL,
 				 VISIT_TIME DATETIME NOT NULL,
 				 PRIMARY KEY (ID)
 				 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_BIN
@@ -222,21 +222,25 @@ class PyMySQL:
 
 		return results_format
 
-# if __name__ == "__main__":
-# 	py = PyMySQL('localhost', 'root', 'getluo', 'TESTDB')
-# 	# py.create_table('FEATUREVECTOR')
-# 	py.insert(['e', 'f'], [20, 20], [[1, 2, 3], [4, 5, 6]], ['2018-07-23 11:10:11', '2018-07-28 09:11:11'])
-# 	py.show_all()
-# 	print('==========')
-# 	# py.show_all()
-# 	res = py.search(20, 1)
-# 	print('res', res)
-# 	# print('=============')
-# 	# print('delete 7-23')
-# 	py.delete(20, 1)
-# 	py.show_all()
-# 	# # res = py.search('r')
-# 	# # print(res)
-# 	# print(1)
+if __name__ == "__main__":
+	py = PyMySQL('localhost', 'root', 'Asd980517', 'WEININGFACE')
+	py.create_table('FEATUREVECTOR')
+	test_str = []
+	num = -0.34254003
+	for i in range(512):
+		test_str.append(num)
+	py.insert(['e', 'f'], [20, 20], [test_str,test_str], ['2018-07-23 11:10:11', '2018-07-28 09:11:11'])
+	py.show_all()
+	print('==========')
+	# py.show_all()
+	#res = py.search(20, 1)
+	#print('res', res)
+	# print('=============')
+	# print('delete 7-23')
+	#py.delete(20, 1)
+	#py.show_all()
+	# # res = py.search('r')
+	# # print(res)
+	# print(1)
 
 

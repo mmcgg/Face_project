@@ -69,6 +69,7 @@ class AddFaceThread(QThread):
 
     def SetImg(self,img):
         self.img = img
+        print('img ok')
         #传入图片后执行run方法
         self.start()
 
@@ -81,11 +82,16 @@ class AddFaceThread(QThread):
         return areas.index(max(areas))
 
     def run(self):
+        print('run ok')
+        print(self.img)
         result = self.detector.detect_faces(self.img)
+        print(result)
+        print('1')
         #如果没有检测出人脸，发出一个信号并且提前停止线程
         if len(result) == 0 :
             self.No_face.emit()
             return
+
         aligment_imgs = []
         temp_landmarks = []
         maxIndex = self.Cal_Area_Index(result)
@@ -118,7 +124,7 @@ class AddFaceThread(QThread):
                 temp_landmarks[i] = num - bouding_boxes[1]
             else:
                 temp_landmarks[i] = num - bouding_boxes[0]
-
+        print('2')
         faces = self.alignment(faces, temp_landmarks)
         faces = np.transpose(faces, (2, 0, 1)).reshape(1, 3, 112, 96)
         faces = (faces - 127.5) / 128.0
@@ -128,13 +134,16 @@ class AddFaceThread(QThread):
         aligment_imgs = np.reshape(aligment_imgs, (length, 3, 112, 96))
         #获取feature 向量
         output_imgs_features = self.get_imgs_features(aligment_imgs)
+        print('finished feature')
         self.Bound_box.emit(bouding_boxes[1],bouding_boxes[1]+bouding_boxes[3],bouding_boxes[0],bouding_boxes[0]+bouding_boxes[2])
+        print('3')
         #获取名称
-        name,ok = QInputDialog.getText(self, "Your name ", "Your name",
-                                            QLineEdit.Normal, self.nameLable.text())
-        if(ok and (len(name)!=0)):
-            #写入数据库操作
-            self.db.insert([name],[11],[output_imgs_features],['2018-07-07 05:23:52'])
+        name = 'GYF'
+        print('4')
+        print(output_imgs_features[0])
+        print(len(output_imgs_features[0]))
+        self.db.insert([name],[11],output_imgs_features,['2018-07-07 05:23:52'])
+        print('all Finished ')
 
 
 

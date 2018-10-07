@@ -15,30 +15,7 @@ class DetectionThread(QThread):
     def __init__(self):
         super(DetectionThread, self).__init__()
         #为自己导入模型
-        self.thres = 0.5  # threshold for recognition
 
-        # load recognition model
-        self.datas = DataPrepare.ImagePrepare('images')
-        self.imgs_alignment = self.datas.imgs_after_alignment
-        self.imgs_features = self.datas.get_imgs_features(self.imgs_alignment)
-        self.imgs_name_list = self.datas.imgs_name_list
-        for i, img_name in enumerate(self.imgs_name_list):
-            self.img_name = img_name.split('.')[0]
-            self.imgs_name_list[i] = self.img_name
-        self.imgs_name_list.append('unknown')
-    def Refresh(self,thres = 0.5):
-        #为自己导入模型
-        self.thres = thres  # threshold for recognition
-
-        # load recognition model
-        self.datas = DataPrepare.ImagePrepare('images')
-        self.imgs_alignment = self.datas.imgs_after_alignment
-        self.imgs_features = self.datas.get_imgs_features(imgs_alignment)
-        self.imgs_name_list = self.datas.imgs_name_list
-        for i, img_name in enumerate(self.imgs_name_list):
-            self.img_name = img_name.split('.')[0]
-            self.imgs_name_list[i] = self.img_name
-        self.imgs_name_list.append('unknown')
     def SetImg(self,img):
         self.img = img
         #传入图片后执行run方法
