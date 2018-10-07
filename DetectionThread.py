@@ -10,29 +10,45 @@ from mtcnn.mtcnn import MTCNN
 #识别算法的线程
 class DetectionThread(QThread):
     #传出的信号为图片中人脸的位置矩形以及识别出的人名
-    self.Bound_Name = pyqtSignal(int,int,int,int,str)
+    Bound_Name = pyqtSignal(int,int,int,int,str)
+    No_face = pyqtSignal()
     def __init__(self):
         super(DetectionThread, self).__init__()
         #为自己导入模型
-        thres = 0.5  # threshold for recognition
+        self.thres = 0.5  # threshold for recognition
 
         # load recognition model
-        datas = DataPrepare.ImagePrepare('images')
-        imgs_alignment = datas.imgs_after_alignment
-        imgs_features = datas.get_imgs_features(imgs_alignment)
-        imgs_name_list = datas.imgs_name_list
-        for i, img_name in enumerate(imgs_name_list):
-            img_name = img_name.split('.')[0]
-            imgs_name_list[i] = img_name
-        imgs_name_list.append('unknown')
+        self.datas = DataPrepare.ImagePrepare('images')
+        self.imgs_alignment = self.datas.imgs_after_alignment
+        self.imgs_features = self.datas.get_imgs_features(self.imgs_alignment)
+        self.imgs_name_list = self.datas.imgs_name_list
+        for i, img_name in enumerate(self.imgs_name_list):
+            self.img_name = img_name.split('.')[0]
+            self.imgs_name_list[i] = self.img_name
+        self.imgs_name_list.append('unknown')
+    def Refresh(self,thres = 0.5):
+        #为自己导入模型
+        self.thres = thres  # threshold for recognition
 
+        # load recognition model
+        self.datas = DataPrepare.ImagePrepare('images')
+        self.imgs_alignment = self.datas.imgs_after_alignment
+        self.imgs_features = self.datas.get_imgs_features(imgs_alignment)
+        self.imgs_name_list = self.datas.imgs_name_list
+        for i, img_name in enumerate(self.imgs_name_list):
+            self.img_name = img_name.split('.')[0]
+            self.imgs_name_list[i] = self.img_name
+        self.imgs_name_list.append('unknown')
     def SetImg(self,img):
         self.img = img
         #传入图片后执行run方法
         self.start()
     def run(self):
-        result = datas.detector.detect_faces(self.img)
+        result = self.datas.detector.detect_faces(self.img)
         #如果没有检测出人脸，发出一个信号并且提前停止线程
+        if len(result) == 0 :
+            self.No_face.emit()
+            return
         aligment_imgs = []
         originfaces = []
         # 检测，标定landmark
@@ -72,7 +88,7 @@ class DetectionThread(QThread):
         length = len(aligment_imgs)
         aligment_imgs = np.array(aligment_imgs)
         aligment_imgs = np.reshape(aligment_imgs, (length, 3, 112, 96))
-        output_imgs_features = datas.get_imgs_features(aligment_imgs)
+        output_imgs_features = self.datas.get_imgs_features(aligment_imgs)
         cos_distances_list = []
         result_index = []
         for img_feature in output_imgs_features:

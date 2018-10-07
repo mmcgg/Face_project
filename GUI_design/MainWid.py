@@ -1,51 +1,18 @@
-from __future__ import print_function
-import sys
-from PyQt5 import QtCore, QtGui,QtWidgets
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-import os
+# -*- coding: utf-8 -*-
 
-sys.setrecursionlimit(1000000)
+# Form implementation generated from reading ui file 'design3.ui'
+#
+# Created by: PyQt5 UI code generator 5.10.1
+#
+# WARNING! All changes made in this file will be lost!
 
+from PyQt5 import QtCore, QtGui, QtWidgets
 
-import cv2
-import numpy as np
-from mtcnn.mtcnn import MTCNN
-import time
-import DataPrepare_v1 as DataPrepare
-import warnings
-
-from DetectionThread import DetectionThread
-warnings.filterwarnings('ignore')
-
-
-class Ui_MainWindow(QWidget):
-    def __init__(self, parent=None):
-        super(Ui_MainWindow, self).__init__(parent)
-
-        #相机区域
-        #人脸识别算法线程
-        self.FaceThread = DetectionThread()
-        self.timer_camera = QtCore.QTimer()
-        self.cap = cv2.VideoCapture()
-        self.CAM_NUM = 0
-        self.resize(1022, 670)
-
-        self.set_ui()
-        self.slot_init()
-
-        self.__flag_work = 0
-        self.x =0
-        self.recognition_flag=False
-
-        #初始化右键下拉菜单
-        self.initMenu()
-        self.initAnimation()
-
-
-    def set_ui(self):
-        self.resize(1114, 861)
-        self.horizontalLayoutWidget = QtWidgets.QWidget(self)
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(1114, 861)
+        self.horizontalLayoutWidget = QtWidgets.QWidget(Form)
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(0, 230, 731, 561))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
         self.MainCameraLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
@@ -54,7 +21,7 @@ class Ui_MainWindow(QWidget):
         self.MainCameraLabel = QtWidgets.QLabel(self.horizontalLayoutWidget)
         self.MainCameraLabel.setObjectName("MainCameraLabel")
         self.MainCameraLayout.addWidget(self.MainCameraLabel)
-        self.horizontalLayoutWidget_2 = QtWidgets.QWidget(self)
+        self.horizontalLayoutWidget_2 = QtWidgets.QWidget(Form)
         self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(730, 10, 381, 851))
         self.horizontalLayoutWidget_2.setObjectName("horizontalLayoutWidget_2")
         self.TabLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_2)
@@ -363,7 +330,7 @@ class Ui_MainWindow(QWidget):
         self.horizontalLayout_18.addWidget(self.FaceLabel4_4)
         self.FaceTab.addTab(self.tab_4, "")
         self.TabLayout.addWidget(self.FaceTab)
-        self.horizontalLayoutWidget_19 = QtWidgets.QWidget(self)
+        self.horizontalLayoutWidget_19 = QtWidgets.QWidget(Form)
         self.horizontalLayoutWidget_19.setGeometry(QtCore.QRect(360, 20, 351, 191))
         self.horizontalLayoutWidget_19.setObjectName("horizontalLayoutWidget_19")
         self.LogoLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_19)
@@ -375,134 +342,51 @@ class Ui_MainWindow(QWidget):
         self.SJTULogoLabel = QtWidgets.QLabel(self.horizontalLayoutWidget_19)
         self.SJTULogoLabel.setObjectName("SJTULogoLabel")
         self.LogoLayout.addWidget(self.SJTULogoLabel)
+
+        self.retranslateUi(Form)
         self.FaceTab.setCurrentIndex(0)
+        QtCore.QMetaObject.connectSlotsByName(Form)
 
+    def retranslateUi(self, Form):
+        _translate = QtCore.QCoreApplication.translate
+        Form.setWindowTitle(_translate("Form", "Form"))
+        self.MainCameraLabel.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel1_1.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel1_2.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel1_3.setText(_translate("Form", "TextLabel"))
+        self.TextLabel1_1.setText(_translate("Form", "TextLabel"))
+        self.TextLabel1_2.setText(_translate("Form", "TextLabel"))
+        self.TextLabel1_3.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel1_4.setText(_translate("Form", "TextLabel"))
+        self.TextLabel1_4.setText(_translate("Form", "TextLabel"))
+        self.FaceTab.setTabText(self.FaceTab.indexOf(self.tab), _translate("Form", "1"))
+        self.TextLabel2_2.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel2_3.setText(_translate("Form", "TextLabel"))
+        self.TextLabel2_1.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel2_2.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel2_1.setText(_translate("Form", "TextLabel"))
+        self.TextLabel2_3.setText(_translate("Form", "TextLabel"))
+        self.TextLabel2_4.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel2_4.setText(_translate("Form", "TextLabel"))
+        self.FaceTab.setTabText(self.FaceTab.indexOf(self.tab_2), _translate("Form", "2"))
+        self.TextLabel3_2.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel3_3.setText(_translate("Form", "TextLabel"))
+        self.TextLabel3_1.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel3_2.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel3_1.setText(_translate("Form", "TextLabel"))
+        self.TextLabel3_3.setText(_translate("Form", "TextLabel"))
+        self.TextLabel3_4.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel3_4.setText(_translate("Form", "TextLabel"))
+        self.FaceTab.setTabText(self.FaceTab.indexOf(self.tab_3), _translate("Form", "3"))
+        self.TextLabel4_4.setText(_translate("Form", "TextLabel"))
+        self.TextLabel4_1.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel4_2.setText(_translate("Form", "TextLabel"))
+        self.TextLabel4_3.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel4_1.setText(_translate("Form", "TextLabel"))
+        self.TextLabel4_2.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel4_3.setText(_translate("Form", "TextLabel"))
+        self.FaceLabel4_4.setText(_translate("Form", "TextLabel"))
+        self.FaceTab.setTabText(self.FaceTab.indexOf(self.tab_4), _translate("Form", "4"))
+        self.LabLogoLabel.setText(_translate("Form", "TextLabel"))
+        self.SJTULogoLabel.setText(_translate("Form", "TextLabel"))
 
-
-    def contextMenuEvent(self, event):
-        pos = event.globalPos()
-        size = self._contextMenu.sizeHint()
-        x, y, w, h = pos.x(), pos.y(), size.width(), size.height()
-        self._animation.stop()
-        self._animation.setStartValue(QRect(x, y, 0, 0))
-        self._animation.setEndValue(QRect(x, y, w, h))
-        self._animation.start()
-        self._contextMenu.exec_(event.globalPos())
-
-    def initMenu(self):
-        self._contextMenu = QMenu(self)
-        self.ac_open_cama = self._contextMenu.addAction('打开相机', self.CameraOperation)
-        self.ac_detection = self._contextMenu.addAction('识别', self.RecognitionOn)
-        self.ac_record = self._contextMenu.addAction('记录', self.Record)
-    def initAnimation(self):
-        # 按钮动画
-        self._animation = QPropertyAnimation(
-            self._contextMenu, b'geometry', self,
-            easingCurve=QEasingCurve.Linear, duration=300)
-        # easingCurve 修改该变量可以实现不同的效果
-
-    #定义信号槽
-    def slot_init(self):
-
-        self.timer_camera.timeout.connect(self.show_camera)
-        #人脸识别算法完成后在右边的tab widget 中显示
-        self.FaceThread.Bound_Name.connect(self.ShowInTab)
-    #打开相机操作
-    def CameraOperation(self):
-        if self.timer_camera.isActive() == False:
-            flag = self.cap.open(self.CAM_NUM)
-            if flag == False:
-                msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please check you have connected your camera", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-        
-            else:
-                self.timer_camera.start(50)
-                self.ac_open_cama.setText('关闭相机')
-        else:
-            self.timer_camera.stop()
-            self.cap.release()
-            self.label_show_camera.clear()
-            self.ac_open_cama.setText('打开相机')
-    #相机显示
-    def show_camera(self):
-        flag, self.image= self.cap.read()
-        if self.recognition_flag ==True:
-            self.image = self.detect_recognition(self.image)
-        show = cv2.resize(self.image, (800, 600))
-        show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
-        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.selfat_RGB888)
-        self.MainCameraLabel.setPixmap(QtGui.QPixmap.fromImage(showImage))
-
-    def RecognitionOn(self):
-        if self.timer_camera.isActive()==False:
-            msg = QtWidgets.QMessageBox.warning(self, u"warning", u"没有检测到摄像头", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-
-        else:
-            #启动识别算法线程
-            self.image = self.cap.read()
-            self.FaceThread.SetImg(self.image)
-            self.Lastimg  = self.image
-
-    def Record(self):
-        if self.timer_camera.isActive()==False:
-            msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"please open your camara", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-        else:
-            if self.recognition_flag==False:
-                msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"you are not using recognition", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-            else:
-                file=open('record.txt','a')
-                file.write('name: ')
-                file.write(str(self.name_list))
-                tx = time.strftime('%Y-%m-%d %H:%M:%S')
-                file.write('\n')
-                file.write(tx)
-                file.close()
-
-    def button_wrtieface_click(self):
-        if self.timer_camera.isActive() == False:
-            msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please open your camara ", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-        else:
-            name,ok = QInputDialog.getText(self, "Your name ", "Your name",
-                                            QLineEdit.Normal, self.nameLable.text())
-            if(ok and (len(name)!=0)):
-                add_new_face(self.image,name)
-
-
-
-    def ShowInTab(self,bound0,bound1,bound2,bound3, name):
-        self.face = self.Lastimg[bound1:bound1 + bound3,
-                    bound0:bound0 + bound2]
-        show = cv2.resize(self.face, (200,200))
-        show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
-        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.selfat_RGB888)
-        self.FaceLabel1_1.setPixmap(QtGui.QPixmap.fromImage(showImage))
-    def closeEvent(self, event):
-        ok = QtWidgets.QPushButton()
-        cacel = QtWidgets.QPushButton()
-
-        msg = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning, u"关闭", u"关闭?")
-
-        msg.addButton(ok,QtWidgets.QMessageBox.ActionRole)
-        msg.addButton(cacel, QtWidgets.QMessageBox.RejectRole)
-        ok.setText(u'是')
-        cacel.setText(u'否')
-        # msg.setDetailedText('sdfsdff')
-        if msg.exec_() == QtWidgets.QMessageBox.RejectRole:
-            event.ignore()
-        else:
-            if self.cap.isOpened():
-                self.cap.release()
-            if self.timer_camera.isActive():
-                self.timer_camera.stop()
-            event.accept()
-
-
-
-app = QtWidgets.QApplication(sys.argv)
-ui = Ui_MainWindow()
-ui.show()
-sys.exit(app.exec_())
