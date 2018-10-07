@@ -5,8 +5,20 @@ import numpy as np
 import warnings
 import DataPrepare_v1 as DataPrepare
 from mtcnn.mtcnn import MTCNN
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+import os
 
 
+sys.setrecursionlimit(1000000)
+myFolder = os.path.split(os.path.realpath(__file__))[0]
+sys.path = [os.path.join(myFolder, 'pymysql')
+] + sys.path
+
+os.chdir(myFolder)
+
+from PyMySQL import *
 #添加新人脸的线程
 class AddFaceThread(QThread):
     #传出的信号为图片中人脸的位置矩形以及识别出的人名
@@ -27,6 +39,8 @@ class AddFaceThread(QThread):
             self.img_name = img_name.split('.')[0]
             self.imgs_name_list[i] = self.img_name
         self.imgs_name_list.append('unknown')
+
+        self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
     def Refresh(self,thres = 0.5):
         #为自己导入模型
         self.thres = thres  # threshold for recognition
@@ -102,10 +116,15 @@ class AddFaceThread(QThread):
         length = len(aligment_imgs)
         aligment_imgs = np.array(aligment_imgs)
         aligment_imgs = np.reshape(aligment_imgs, (length, 3, 112, 96))
+        #获取feature 向量
         output_imgs_features = self.datas.get_imgs_features(aligment_imgs)
         self.Bound_box.emit(bouding_boxes[1],bouding_boxes[1]+bouding_boxes[3],bouding_boxes[0],bouding_boxes[0]+bouding_boxes[2])
-
-
+        #获取名称
+        name,ok = QInputDialog.getText(self, "Your name ", "Your name",
+                                            QLineEdit.Normal, self.nameLable.text())
+        if(ok and (len(name)!=0)):
+            #写入数据库操作
+            self.db.insert([name],[11],[output_imgs_features],['2018-07-07 05:23:52'])
 
 
 

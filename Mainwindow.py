@@ -33,6 +33,7 @@ class Ui_MainWindow(QWidget):
         #人脸识别算法线程
         self.FaceThread = DetectionThread()
         #添加新人脸的线程
+        self.AddFaceThread = AddFaceThread()
         self.timer_camera = QtCore.QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0
@@ -51,6 +52,7 @@ class Ui_MainWindow(QWidget):
 
         #数据库操作工具
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
+
     def set_ui(self):
         self.resize(1114, 861)
         self.horizontalLayoutWidget = QtWidgets.QWidget(self)
