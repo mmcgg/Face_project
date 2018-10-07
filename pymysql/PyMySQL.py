@@ -58,9 +58,10 @@ class PyMySQL:
 	def insert(self, name, age, vec, visit_time):
 		'''insert a piece of info into the database'''
 
+		print('Connecting')
 		connection = self.connect()
 		cursor = connection.cursor()
-
+		print('Connect finished')
 		sql = """INSERT INTO FEATUREVECTOR
 			(NAME, AGE, VECTOR, VISIT_TIME)
 			VALUES
@@ -87,9 +88,9 @@ class PyMySQL:
 			except:
 				connection.rollback()
 				print('fail to insert info')
-
+		print('Insert Finished')
 		connection.close()
-
+		print('Connection Closed')
 	def show_all(self):
 		'''show all the infos in the table, just for test'''
 
@@ -221,26 +222,26 @@ class PyMySQL:
 			tmp = []
 
 		return results_format
-
-if __name__ == "__main__":
-	py = PyMySQL('localhost', 'root', 'Asd980517', 'WEININGFACE')
-	py.create_table('FEATUREVECTOR')
-	test_str = []
-	num = -0.34254003
-	for i in range(512):
-		test_str.append(num)
-	py.insert(['e', 'f'], [20, 20], [test_str,test_str], ['2018-07-23 11:10:11', '2018-07-28 09:11:11'])
-	py.show_all()
-	print('==========')
-	# py.show_all()
-	#res = py.search(20, 1)
-	#print('res', res)
-	# print('=============')
-	# print('delete 7-23')
-	#py.delete(20, 1)
-	#py.show_all()
-	# # res = py.search('r')
-	# # print(res)
-	# print(1)
-
+#
+# if __name__ == "__main__":
+# 	py = PyMySQL('localhost', 'root', 'Asd980517', 'WEININGFACE')
+# 	py.create_table('FEATUREVECTOR')
+# 	test_str = []
+# 	num = -0.34254003
+# 	for i in range(512):
+# 		test_str.append(num)
+# 	py.insert(['e', 'f'], [20, 20], [test_str,test_str], ['2018-07-23 11:10:11', '2018-07-28 09:11:11'])
+# 	py.show_all()
+# 	print('==========')
+# 	# py.show_all()
+# 	#res = py.search(20, 1)
+# 	#print('res', res)
+# 	# print('=============')
+# 	# print('delete 7-23')
+# 	#py.delete(20, 1)
+# 	#py.show_all()
+# 	# # res = py.search('r')
+# 	# # print(res)
+# 	# print(1)
+#
 

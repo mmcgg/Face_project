@@ -66,7 +66,7 @@ class AddFaceThread(QThread):
     def __init__(self):
         super(AddFaceThread, self).__init__()
         self.detector = MTCNN()
-
+        self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
     def SetImg(self,img):
         self.img = img
         print('img ok')
@@ -137,14 +137,9 @@ class AddFaceThread(QThread):
         print('finished feature')
         self.Bound_box.emit(bouding_boxes[1],bouding_boxes[1]+bouding_boxes[3],bouding_boxes[0],bouding_boxes[0]+bouding_boxes[2])
         print('3')
-        #获取名称
-        name = 'GYF'
-        print('4')
-        print(output_imgs_features[0])
-        print(len(output_imgs_features[0]))
-        self.db.insert([name],[11],output_imgs_features,['2018-07-07 05:23:52'])
-        print('all Finished ')
 
+        self.db.delete_all()
+        self.db.insert([name],[11],[output_imgs_features],['2018-07-07 05:23:52'])
 
 
     def cal_cosdistance(self, vec1, vec2):

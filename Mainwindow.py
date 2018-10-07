@@ -427,7 +427,7 @@ class Ui_MainWindow(QWidget):
         #         msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please check you have connected your camera", buttons=QtWidgets.QMessageBox.Ok,
         #                                         defaultButton=QtWidgets.QMessageBox.Ok)
         # else:
-        img = cv2.imread('.\images\gyf.jpg')
+        img = self.image
         print('cap ok')
         self.AddFaceThread.SetImg(img)
 
@@ -453,7 +453,6 @@ class Ui_MainWindow(QWidget):
     #相机显示
     def show_camera(self):
         flag, self.image= self.cap.read()
-        print(self.image)
         show = cv2.resize(self.image, (800, 600))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0],QImage.Format_RGB888 )
