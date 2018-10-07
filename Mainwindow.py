@@ -3,21 +3,26 @@ import sys
 from PyQt5 import QtCore, QtGui,QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 import os
 
+
 sys.setrecursionlimit(1000000)
+myFolder = os.path.split(os.path.realpath(__file__))[0]
+sys.path = [os.path.join(myFolder, 'pymysql')
+] + sys.path
 
-
+os.chdir(myFolder)
 import cv2
 import numpy as np
 from mtcnn.mtcnn import MTCNN
 import time
 import DataPrepare_v1 as DataPrepare
 import warnings
+from PyMySQL import *
 
 from DetectionThread import DetectionThread
 warnings.filterwarnings('ignore')
-
 
 class Ui_MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -421,16 +426,14 @@ class Ui_MainWindow(QWidget):
         else:
             self.timer_camera.stop()
             self.cap.release()
-            self.label_show_camera.clear()
+            self.MainCameraLabel.clear()
             self.ac_open_cama.setText('打开相机')
     #相机显示
     def show_camera(self):
         flag, self.image= self.cap.read()
-        if self.recognition_flag ==True:
-            self.image = self.detect_recognition(self.image)
         show = cv2.resize(self.image, (800, 600))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
-        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.selfat_RGB888)
+        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0],QImage.Format_RGB888 )
         self.MainCameraLabel.setPixmap(QtGui.QPixmap.fromImage(showImage))
 
     def RecognitionOn(self):
@@ -478,7 +481,7 @@ class Ui_MainWindow(QWidget):
                     bound0:bound0 + bound2]
         show = cv2.resize(self.face, (200,200))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
-        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.selfat_RGB888)
+        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
         self.FaceLabel1_1.setPixmap(QtGui.QPixmap.fromImage(showImage))
     def closeEvent(self, event):
         ok = QtWidgets.QPushButton()
