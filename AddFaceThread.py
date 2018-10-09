@@ -67,6 +67,7 @@ class AddFaceThread(QThread):
         super(AddFaceThread, self).__init__()
         self.detector = MTCNN()
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
+        self.inputWidget = QWidget()
     def SetImg(self,img):
         self.img = img
         print('img ok')
@@ -134,12 +135,11 @@ class AddFaceThread(QThread):
         aligment_imgs = np.reshape(aligment_imgs, (length, 3, 112, 96))
         #获取feature 向量
         output_imgs_features = self.get_imgs_features(aligment_imgs)
-        print('finished feature')
         self.Bound_box.emit(bouding_boxes[1],bouding_boxes[1]+bouding_boxes[3],bouding_boxes[0],bouding_boxes[0]+bouding_boxes[2])
-        print('3')
 
-        self.db.delete_all()
-        self.db.insert([name],[11],[output_imgs_features],['2018-07-07 05:23:52'])
+        name, ok = QInputDialog.getText(self.inputWidget, "Get name", "Your name:", QLineEdit.Normal, "")
+        if ok and name!='':
+            self.db.insert([name],[11],[output_imgs_features],['2018-07-07 05:23:52'])
 
 
     def cal_cosdistance(self, vec1, vec2):
