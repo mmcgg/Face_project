@@ -9,7 +9,7 @@ import os
 
 sys.setrecursionlimit(1000000)
 myFolder = os.path.split(os.path.realpath(__file__))[0]
-sys.path = [os.path.join(myFolder, 'pymysql')
+sys.path = [os.path.join(myFolder, 'pymysql'),os.path.join(myFolder,'resources')
 ] + sys.path
 
 os.chdir(myFolder)
@@ -52,6 +52,7 @@ class Ui_MainWindow(QWidget):
         #初始化右键下拉菜单
         self.initMenu()
         self.initAnimation()
+        self.setBackGround()
 
 
 
@@ -389,6 +390,12 @@ class Ui_MainWindow(QWidget):
         self.LogoLayout.addWidget(self.SJTULogoLabel)
         self.FaceTab.setCurrentIndex(0)
 
+    def setBackGround(self):
+
+        self.setAutoFillBackground(True)
+        self.Palette = QPalette()
+        self.Palette.setBrush(QPalette.Background,QBrush(QPixmap('Background1.jpg')))
+        self.setPalette(self.Palette)
 
 
     def contextMenuEvent(self, event):
