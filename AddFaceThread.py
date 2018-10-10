@@ -83,11 +83,8 @@ class AddFaceThread(QThread):
         return areas.index(max(areas))
 
     def run(self):
-        print('run ok')
-        print(self.img)
         result = self.detector.detect_faces(self.img)
-        print(result)
-        print('1')
+
         #如果没有检测出人脸，发出一个信号并且提前停止线程
         if len(result) == 0 :
             self.No_face.emit()

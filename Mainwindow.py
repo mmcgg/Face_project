@@ -9,7 +9,8 @@ import os
 
 sys.setrecursionlimit(1000000)
 myFolder = os.path.split(os.path.realpath(__file__))[0]
-sys.path = [os.path.join(myFolder, 'pymysql'),os.path.join(myFolder,'resources')
+sys.path = [os.path.join(myFolder, 'pymysql')
+           ,os.path.join(myFolder,'resources')
 ] + sys.path
 
 os.chdir(myFolder)
@@ -391,11 +392,14 @@ class Ui_MainWindow(QWidget):
         self.FaceTab.setCurrentIndex(0)
 
     def setBackGround(self):
-
+        self.FaceTab.setAutoFillBackground(True)
         self.setAutoFillBackground(True)
-        self.Palette = QPalette()
-        self.Palette.setBrush(QPalette.Background,QBrush(QPixmap('Background1.jpg')))
-        self.setPalette(self.Palette)
+        image  = QPixmap()
+        image.load('Background1.jpg')
+
+        self.Qpa = QPalette()
+        self.Qpa.setBrush(self.backgroundRole(),QBrush(image))
+        self.setPalette(self.Qpa)
 
 
     def contextMenuEvent(self, event):
@@ -435,7 +439,6 @@ class Ui_MainWindow(QWidget):
         #                                         defaultButton=QtWidgets.QMessageBox.Ok)
         # else:
         img = self.image
-        print('cap ok')
         self.AddFaceThread.SetImg(img)
 
 
