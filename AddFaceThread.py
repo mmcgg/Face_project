@@ -62,10 +62,9 @@ class AddFaceThread(QThread):
     #传出的信号为图片中人脸的位置矩形以及识别出的人名
     Bound_box = pyqtSignal(int,int,int,int)
     No_face = pyqtSignal()
-    Ask_name = pyqtSignal()
-    def __init__(self):
+    def __init__(self,detector):
         super(AddFaceThread, self).__init__()
-        self.detector = MTCNN()
+        self.detector = detector
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         self.inputWidget = QWidget()
     def SetImg(self,img):
@@ -122,7 +121,6 @@ class AddFaceThread(QThread):
                 temp_landmarks[i] = num - bouding_boxes[1]
             else:
                 temp_landmarks[i] = num - bouding_boxes[0]
-        print('2')
         faces = self.alignment(faces, temp_landmarks)
         faces = np.transpose(faces, (2, 0, 1)).reshape(1, 3, 112, 96)
         faces = (faces - 127.5) / 128.0

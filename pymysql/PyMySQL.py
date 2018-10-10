@@ -112,6 +112,39 @@ class PyMySQL:
 			tmp = []
 		print(results_format)
 
+	def getAllVector(self):
+		'''return all vector as a list'''
+
+		connection = self.connect()
+		cursor = connection.cursor()
+		sql = """SELECT * FROM FEATUREVECTOR ORDER BY NAME ASC"""
+
+		cursor.execute(sql)
+		results = cursor.fetchall()
+		# print(results)
+		results_format = []
+		tmp = []
+		for i in range(len(results)):
+			tmp.append(results[i]['VECTOR'])
+
+		return tmp
+
+	def getAllName(self):
+		'''return all name as a list'''
+
+		connection = self.connect()
+		cursor = connection.cursor()
+		sql = """SELECT * FROM FEATUREVECTOR ORDER BY NAME ASC"""
+
+		cursor.execute(sql)
+		results = cursor.fetchall()
+		# print(results)
+		results_format = []
+		tmp = []
+		for i in range(len(results)):
+			tmp.append(results[i]['NAME'])
+
+		return tmp
 	def delete(self, info, method=0):
 		'''
     	search all the satisfied data according to the name

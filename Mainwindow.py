@@ -34,10 +34,11 @@ class Ui_MainWindow(QWidget):
 
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         #相机区域
-        #人脸识别算法线程
-        self.FaceThread = DetectionThread()
+        #人脸识别与记录线程
+        self.detector = MTCNN()
+        self.FaceThread = DetectionThread(self.detector)
         #添加新人脸的线程
-        self.AddFaceThread = AddFaceThread()
+        self.AddFaceThread = AddFaceThread(self.detector)
         self.timer_camera = QtCore.QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0
@@ -416,7 +417,6 @@ class Ui_MainWindow(QWidget):
         self._contextMenu = QMenu(self)
         self.ac_open_cama = self._contextMenu.addAction('打开相机', self.CameraOperation)
         self.ac_detection = self._contextMenu.addAction('识别', self.RecognitionOn)
-        self.ac_record = self._contextMenu.addAction('记录', self.Record)
         self.ac_Addface = self._contextMenu.addAction('添加新人脸',self.AddFace)
     def initAnimation(self):
         # 按钮动画
@@ -431,6 +431,7 @@ class Ui_MainWindow(QWidget):
         self.timer_camera.timeout.connect(self.show_camera)
         #人脸识别算法完成后在右边的tab widget 中显示
         self.FaceThread.Bound_Name.connect(self.ShowInTab)
+
     def AddFace(self):
         # if self.timer_camera.isActive() == False:
         #     flag = self.cap.open(self.CAM_NUM)
@@ -476,25 +477,10 @@ class Ui_MainWindow(QWidget):
         else:
             #启动识别算法线程
             self.image = self.cap.read()
-            self.FaceThread.SetImg(self.image)
-            self.Lastimg  = self.image
+            self.Lastimage = self.image.copy()
+            self.FaceThread.SetImg(self.Lastimage)
 
-    def Record(self):
-        if self.timer_camera.isActive()==False:
-            msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"please open your camara", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-        else:
-            if self.recognition_flag==False:
-                msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"you are not using recognition", buttons=QtWidgets.QMessageBox.Ok,
-                                                defaultButton=QtWidgets.QMessageBox.Ok)
-            else:
-                file=open('record.txt','a')
-                file.write('name: ')
-                file.write(str(self.name_list))
-                tx = time.strftime('%Y-%m-%d %H:%M:%S')
-                file.write('\n')
-                file.write(tx)
-                file.close()
+
 
     # def button_wrtieface_click(self):
     #     if self.timer_camera.isActive() == False:
@@ -506,10 +492,8 @@ class Ui_MainWindow(QWidget):
     #         if(ok and (len(name)!=0)):
     #             add_new_face(self.image,name)
 
-
-
-    def ShowInTab(self,bound0,bound1,bound2,bound3, name):
-        self.face = self.Lastimg[bound1:bound1 + bound3,
+    def ShowInTab(self,bound0,bound1,bound2,bound3,name):
+        self.face = self.Lastimage[bound1:bound1 + bound3,
                     bound0:bound0 + bound2]
         show = cv2.resize(self.face, (200,200))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
