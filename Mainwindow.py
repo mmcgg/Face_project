@@ -476,9 +476,8 @@ class Ui_MainWindow(QWidget):
 
         else:
             #启动识别算法线程
-            self.image = self.cap.read()
-            self.Lastimage = self.image.copy()
-            self.FaceThread.SetImg(self.Lastimage)
+
+            self.FaceThread.SetImg(self.image)
 
 
 

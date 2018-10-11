@@ -58,6 +58,7 @@ class DetectionThread(QThread):
         self.detector = detector
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         self.thres = 0.5 #判断人脸相似度的阈值
+        self.MWindow = QWidget()
     def SetImg(self,img):
         self.img = img
         #传入图片后执行run方法
@@ -65,10 +66,12 @@ class DetectionThread(QThread):
     def SetThresHold(self,thres):
         self.thres = thres
     def run(self):
+
         result = self.detector.detect_faces(self.img)
+
         #如果没有检测出人脸，发出一个信号并且提前停止线程
         if len(result) == 0 :
-            msg = QMessageBox.warning(self, u"Warning", u"没有检测到人脸",
+            msg = QMessageBox.warning(self.MWindow, u"Warning", u"没有检测到人脸",
                                                 buttons=QtWidgets.QMessageBox.Ok,
                                                 defaultButton=QtWidgets.QMessageBox.Ok)
             return
@@ -80,7 +83,7 @@ class DetectionThread(QThread):
             bouding_boxes = face['box']
             keypoints = face['keypoints']
 
-            faces = img[bouding_boxes[1]:bouding_boxes[1] + bouding_boxes[3],
+            faces = self.img[bouding_boxes[1]:bouding_boxes[1] + bouding_boxes[3],
                     bouding_boxes[0]:bouding_boxes[0] + bouding_boxes[2]]
             originfaces.append(faces)
             lefteye = keypoints['left_eye']
@@ -108,6 +111,8 @@ class DetectionThread(QThread):
             faces = np.transpose(faces, (2, 0, 1)).reshape(1, 3, 112, 96)
             faces = (faces - 127.5) / 128.0
             aligment_imgs.append(faces)
+
+
         length = len(aligment_imgs)
         aligment_imgs = np.array(aligment_imgs)
         aligment_imgs = np.reshape(aligment_imgs, (length, 3, 112, 96))
@@ -116,12 +121,15 @@ class DetectionThread(QThread):
 
         #和数据库内的每一个向量进行计算对比
         imgs_features = self.db.getAllVector()
+        print(imgs_features)
         NameIndb = self.db.getAllName()
+        print('ready to cal cos')
         NameList = []
         for img_feature in output_imgs_features:
             cos_distance_list = [self.cal_cosdistance(img_feature, test_img_feature) for test_img_feature in
                                  imgs_features]
             cos_distances_list.append(cos_distance_list)
+        print('cal cos ok')
         for imgfeature in cos_distances_list:
             if max(imgfeature) < thres:
                 NameList.append('Unknown')
@@ -130,6 +138,7 @@ class DetectionThread(QThread):
         for i, name in enumerate(NameList):
             bound = result[i]['box']
             #发送信号
+            print('Emitting Signal')
             self.Bound_Name.emit(bound[1],bound[1]+bound[3],bound[0],bound[0]+bound[2],name)
 
 

@@ -68,3 +68,22 @@ https://blog.csdn.net/dao_wolf/article/details/79123599 Django的框架
 
 ### QThread 的使用
 
+
+
+
+
+### 10.10
+
+尝试使用 setStyleSheet()的方法，似乎没有用
+
+采用Qpalette() 完成了背景的设置
+
+（还需要设置tabwidget的背景）
+
+
+
+
+
+### 10.11
+
+改进了人脸识别的线程，但现在还有问题
