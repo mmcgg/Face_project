@@ -38,7 +38,7 @@ class PyMySQL:
 				 ID INT(11) NOT NULL AUTO_INCREMENT,
 				 NAME CHAR(30) NOT NULL COLLATE utf8_bin,
 				 AGE INT(4) NOT NULL,
-				 VECTOR CHAR(100) NOT NULL,
+				 VECTOR VARCHAR(10000) NOT NULL,
 				 VISIT_TIME DATETIME NOT NULL,
 				 PRIMARY KEY (ID)
 				 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_BIN
@@ -90,7 +90,7 @@ class PyMySQL:
 
 		connection.close()
 
-	def show_all(self):
+	def get_all_info(self):
 		'''show all the infos in the table, just for test'''
 
 		connection = self.connect()
@@ -109,7 +109,36 @@ class PyMySQL:
 			tmp.append(results[i]['VISIT_TIME'])
 			results_format.append(tmp)
 			tmp = []
-		print(results_format)
+		return results_format
+
+	def get_all_name(self):
+		'''return a array of all the names in order'''
+		'''returns: [name1, name2]'''
+
+		results_format = self.get_all_info()
+		name_list = []
+		for i, info in enumerate(results_format):
+			name = info[0]
+			name_list.append(name)
+
+		return name_list
+
+	def get_all_vector(self):
+		'''return a array of all the featurevector array in order'''
+		'''returns: [[1.0, 2.0], [3.0, 4.0]]'''
+
+		feature_vector_list = []
+		results_format = self.get_all_info()
+		for i, info in enumerate(results_format):
+			feature_vector = info[2]
+			feature_vector_str = feature_vector[1:-1].split(',')
+			feature_vector_float = [float(s) for s in feature_vector_str]
+			feature_vector_list.append(feature_vector_float)
+
+		return feature_vector_list
+
+
+
 
 	def delete(self, info, method=0):
 		'''
@@ -222,21 +251,16 @@ class PyMySQL:
 
 		return results_format
 
-# if __name__ == "__main__":
-# 	py = PyMySQL('localhost', 'root', 'getluo', 'TESTDB')
-# 	# py.create_table('FEATUREVECTOR')
-# 	py.insert(['e', 'f'], [20, 20], [[1, 2, 3], [4, 5, 6]], ['2018-07-23 11:10:11', '2018-07-28 09:11:11'])
-# 	py.show_all()
-# 	print('==========')
-# 	# py.show_all()
-# 	res = py.search(20, 1)
-# 	print('res', res)
-# 	# print('=============')
-# 	# print('delete 7-23')
-# 	py.delete(20, 1)
-# 	py.show_all()
-# 	# # res = py.search('r')
-# 	# # print(res)
-# 	# print(1)
+if __name__ == "__main__":
+	py = PyMySQL('localhost', 'root', 'getluo', 'TESTDB')
 
+	py.create_table('FEATUREVECTOR')
+	float_num = -1.3232
+	float_num_list = []
+	for i in range(512):
+		float_num_list.append(float_num)
+	print(1)
+	py.insert(['e', 'f'], [20, 20], [float_num_list, float_num_list], ['2018-07-23 11:10:11', '2018-07-28 09:11:11'])
+	print(py.get_all_name())
+	print(py.get_all_vector())
 
