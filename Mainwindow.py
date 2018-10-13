@@ -439,7 +439,7 @@ class Ui_MainWindow(QWidget):
         #         msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please check you have connected your camera", buttons=QtWidgets.QMessageBox.Ok,
         #                                         defaultButton=QtWidgets.QMessageBox.Ok)
         # else:
-        img = self.image
+        img = self.image.copy()
         self.AddFaceThread.SetImg(img)
 
 
@@ -476,7 +476,7 @@ class Ui_MainWindow(QWidget):
 
         else:
             #启动识别算法线程
-
+            self.RecogImage = self.image.copy()
             self.FaceThread.SetImg(self.image)
 
 
@@ -492,12 +492,14 @@ class Ui_MainWindow(QWidget):
     #             add_new_face(self.image,name)
 
     def ShowInTab(self,bound0,bound1,bound2,bound3,name):
-        self.face = self.Lastimage[bound1:bound1 + bound3,
+        print('Signal:',bound0,bound1,bound2,bound3,name)
+        face = self.RecogImage[bound1:bound1 + bound3,
                     bound0:bound0 + bound2]
-        show = cv2.resize(self.face, (200,200))
+        show = cv2.resize(face, (200,200))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
         self.FaceLabel1_1.setPixmap(QtGui.QPixmap.fromImage(showImage))
+        self.TextLabel1_1.setText(name)
     def closeEvent(self, event):
         ok = QtWidgets.QPushButton()
         cacel = QtWidgets.QPushButton()

@@ -69,7 +69,6 @@ class AddFaceThread(QThread):
         self.inputWidget = QWidget()
     def SetImg(self,img):
         self.img = img
-        print('img ok')
         #传入图片后执行run方法
         self.start()
 
@@ -86,7 +85,7 @@ class AddFaceThread(QThread):
 
         #如果没有检测出人脸，发出一个信号并且提前停止线程
         if len(result) == 0 :
-            self.No_face.emit()
+            print('No face')
             return
 
         aligment_imgs = []
@@ -130,11 +129,12 @@ class AddFaceThread(QThread):
         aligment_imgs = np.reshape(aligment_imgs, (length, 3, 112, 96))
         #获取feature 向量
         output_imgs_features = self.get_imgs_features(aligment_imgs)
-        self.Bound_box.emit(bouding_boxes[1],bouding_boxes[1]+bouding_boxes[3],bouding_boxes[0],bouding_boxes[0]+bouding_boxes[2])
 
+        print('get image featrure ok')
         name, ok = QInputDialog.getText(self.inputWidget, "Get name", "Your name:", QLineEdit.Normal, "")
         if ok and name!='':
             self.db.insert([name],[11],[output_imgs_features],['2018-07-07 05:23:52'])
+        print('insert ok')
 
 
     def cal_cosdistance(self, vec1, vec2):
