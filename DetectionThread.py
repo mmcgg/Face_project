@@ -111,26 +111,26 @@ class DetectionThread(QThread):
             faces = (faces - 127.5) / 128.0
             aligment_imgs.append(faces)
 
-        print('face ok')
+        # print('face ok')
         length = len(aligment_imgs)
         aligment_imgs = np.array(aligment_imgs)
         aligment_imgs = np.reshape(aligment_imgs, (length, 3, 112, 96))
         output_imgs_features = self.get_imgs_features(aligment_imgs)
         cos_distances_list = []
-        print('featrure ok')
+        # print('featrure ok')
         #和数据库内的每一个向量进行计算对比
         imgs_features = self.db.get_all_vector()
-        print('\n',imgs_features)
-        print('ready to cal cos')
+        # print('\n',imgs_features)
+        # print('ready to cal cos')
         NameIndb = self.db.get_all_name()
-        print(NameIndb)
+        # print(NameIndb)
         NameList = []
         for img_feature in output_imgs_features:
             cos_distance_list = [self.cal_cosdistance(img_feature, test_img_feature) for test_img_feature in
                                  imgs_features]
             cos_distances_list.append(cos_distance_list)
 
-        print('\n',cos_distances_list)
+        # print('\n',cos_distances_list)
 
         for sub_cos_distances_list in cos_distances_list:
 
@@ -139,11 +139,11 @@ class DetectionThread(QThread):
             else:
                 NameList.append(NameIndb[sub_cos_distances_list.index(max(sub_cos_distances_list))])
 
-        print('Name list: ',NameList)
+        # print('Name list: ',NameList)
         for i, name in enumerate(NameList):
             bound = result[i]['box']
             #发送信号
-            print('Signal emit:',bound,name)
+            # print('Signal emit:',bound,name)
             self.Bound_Name.emit(bound[0],bound[1],bound[2],bound[3],name)
 
 

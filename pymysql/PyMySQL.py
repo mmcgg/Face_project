@@ -134,27 +134,27 @@ class PyMySQL:
         for i, info in enumerate(results_format):
             feature_vector = info[2]
             feature_vector_str = feature_vector[1:-1].split(',')
-            print('feature str',feature_vector_str)
+            # print('feature str',feature_vector_str)
             feature_vector_float = []
-            print('here')
+            # print('here')
             for s in feature_vector_str:
                 tmp_str_split = s[1:-1].split(' ')
-                print(1)
+                # print(1)
 
                 for float_str in tmp_str_split:
-                    print(2)
+                    # print(2)
                     if float_str == '':
                         continue
                     elif float_str[-1] == 'n':
                         float_str = float_str[:-2]
                     else:
                         pass
-                    print(3)
-                    print(float_str)
+                    # print(3)
+                    # print(float_str)
                     float_num = float(float_str)
-                    print(4)
+                    # print(4)
                     feature_vector_float.append(float_num)
-            print('last',feature_vector_float)
+            # print('last',feature_vector_float)
             feature_vector_list.append(feature_vector_float)
 
         return feature_vector_list
@@ -270,18 +270,18 @@ class PyMySQL:
 
         return results_format
 
-
-if __name__ == "__main__":
-    py = PyMySQL('localhost', 'root', 'getluo', 'TESTDB')
-
-    py.create_table('FEATUREVECTOR')
-    float_num = -1.3232
-    float_num_list = []
-    for i in range(512):
-        float_num_list.append(float_num)
-    print(1)
-    py.insert(['e', 'f'], [20, 20], [float_num_list, float_num_list.append('0.12/n')],
-              ['2018-07-23 11:10:11', '2018-07-28 09:11:11'])
-    print(py.get_all_name())
-    print(py.get_all_vector())
+#
+# if __name__ == "__main__":
+#     py = PyMySQL('localhost', 'root', 'getluo', 'TESTDB')
+#
+#     py.create_table('FEATUREVECTOR')
+#     float_num = -1.3232
+#     float_num_list = []
+#     for i in range(512):
+#         float_num_list.append(float_num)
+#     print(1)
+#     py.insert(['e', 'f'], [20, 20], [float_num_list, float_num_list.append('0.12/n')],
+#               ['2018-07-23 11:10:11', '2018-07-28 09:11:11'])
+#     print(py.get_all_name())
+#     print(py.get_all_vector())
 
