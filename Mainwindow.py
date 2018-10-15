@@ -31,7 +31,7 @@ class Ui_MainWindow(QWidget):
         super(Ui_MainWindow, self).__init__(parent)
 
 
-
+        #数据库调用
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         #相机区域
         #人脸识别与记录线程
@@ -51,15 +51,17 @@ class Ui_MainWindow(QWidget):
         self.x =0
         self.recognition_flag=False
 
-        #初始化右键下拉菜单
+        #初始化
         self.initMenu()
         self.initAnimation()
         self.setBackGround()
+        self.Set_logo()
 
 
 
     def set_ui(self):
         self.resize(1114, 861)
+
         self.horizontalLayoutWidget = QtWidgets.QWidget(self)
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(0, 230, 731, 561))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
@@ -68,7 +70,9 @@ class Ui_MainWindow(QWidget):
         self.MainCameraLayout.setObjectName("MainCameraLayout")
         self.MainCameraLabel = QtWidgets.QLabel(self.horizontalLayoutWidget)
         self.MainCameraLabel.setObjectName("MainCameraLabel")
+        self.horizontalLayoutWidget.setAutoFillBackground(True)
         self.MainCameraLayout.addWidget(self.MainCameraLabel)
+        self.MainCameraLabel.setScaledContents(True)
         self.horizontalLayoutWidget_2 = QtWidgets.QWidget(self)
         self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(730, 10, 381, 851))
         self.horizontalLayoutWidget_2.setObjectName("horizontalLayoutWidget_2")
@@ -392,6 +396,7 @@ class Ui_MainWindow(QWidget):
         self.LogoLayout.addWidget(self.SJTULogoLabel)
         self.FaceTab.setCurrentIndex(0)
 
+    #设置背景
     def setBackGround(self):
         self.FaceTab.setAutoFillBackground(True)
         self.setAutoFillBackground(True)
@@ -402,7 +407,11 @@ class Ui_MainWindow(QWidget):
         self.Qpa.setBrush(self.backgroundRole(),QBrush(image))
         self.setPalette(self.Qpa)
 
-
+    #设置logo
+    def Set_logo(self):
+        pix = QPixmap('schoolLogo.jpg')
+        self.SJTULogoLabel.setScaledContents(True)
+        self.SJTULogoLabel.setPixmap(pix)
     def contextMenuEvent(self, event):
         pos = event.globalPos()
         size = self._contextMenu.sizeHint()
@@ -416,7 +425,7 @@ class Ui_MainWindow(QWidget):
     def initMenu(self):
         self._contextMenu = QMenu(self)
         self.ac_open_cama = self._contextMenu.addAction('打开相机', self.CameraOperation)
-        self.ac_detection = self._contextMenu.addAction('识别', self.RecognitionOn)
+        self.ac_detection = self._contextMenu.addAction('一键签到', self.RecognitionOn)
         self.ac_Addface = self._contextMenu.addAction('添加新人脸',self.AddFace)
     def initAnimation(self):
         # 按钮动画
@@ -433,18 +442,16 @@ class Ui_MainWindow(QWidget):
         self.FaceThread.Bound_Name.connect(self.ShowInTab)
 
     def AddFace(self):
-        # if self.timer_camera.isActive() == False:
-        #     flag = self.cap.open(self.CAM_NUM)
-        #     if flag == False:
-        #         msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please check you have connected your camera", buttons=QtWidgets.QMessageBox.Ok,
-        #                                         defaultButton=QtWidgets.QMessageBox.Ok)
-        # else:
-        img = self.image.copy()
-        self.AddFaceThread.SetImg(img)
+        if self.timer_camera.isActive() == False:
+            flag = self.cap.open(self.CAM_NUM)
+            if flag == False:
+                msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please check you have connected your camera", buttons=QtWidgets.QMessageBox.Ok,
+                                                defaultButton=QtWidgets.QMessageBox.Ok)
+        else:
+            img = self.image.copy()
+            self.AddFaceThread.SetImg(img)
 
 
-    def InputName(self):
-        pass
     #打开相机操作
     def CameraOperation(self):
         if self.timer_camera.isActive() == False:
@@ -499,7 +506,10 @@ class Ui_MainWindow(QWidget):
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
         self.FaceLabel1_1.setPixmap(QtGui.QPixmap.fromImage(showImage))
-        self.TextLabel1_1.setText(name)
+        tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
+        all_str = name +'\n'+tx
+        self.TextLabel1_1.setText(all_str)
+
     def closeEvent(self, event):
         ok = QtWidgets.QPushButton()
         cacel = QtWidgets.QPushButton()
