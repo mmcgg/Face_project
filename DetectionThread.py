@@ -52,6 +52,7 @@ from PyMySQL import *
 class DetectionThread(QThread):
     #传出的信号为图片中人脸的位置矩形以及识别出的人名
     Bound_Name = pyqtSignal(int,int,int,int,str)
+    Dynamic_Bound_Name = pyqtSignal(int,int,int,int,str)
     def __init__(self,detector):
         super(DetectionThread, self).__init__()
         #为自己导入模型
@@ -59,8 +60,9 @@ class DetectionThread(QThread):
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         self.thres = 0.5 #判断人脸相似度的阈值
         self.MWindow = QWidget()
-    def SetImg(self,img):
+    def SetImg(self,img,method = 0):
         self.img = img
+        self.method = method
         #传入图片后执行run方法
         self.start()
     def SetThresHold(self,thres):
@@ -140,11 +142,22 @@ class DetectionThread(QThread):
                 NameList.append(NameIndb[sub_cos_distances_list.index(max(sub_cos_distances_list))])
 
         # print('Name list: ',NameList)
-        for i, name in enumerate(NameList):
-            bound = result[i]['box']
-            #发送信号
-            # print('Signal emit:',bound,name)
-            self.Bound_Name.emit(bound[0],bound[1],bound[2],bound[3],name)
+        #method = 0: 签到
+        #method = 1: 动态识别（画人脸）
+        if self.method ==0:
+            for i, name in enumerate(NameList):
+                bound = result[i]['box']
+                #发送信号
+                #    print('Signal emit:',bound,name)
+                self.Bound_Name.emit(bound[0],bound[1],bound[2],bound[3],name)
+        elif self.method ==1:
+            for i, name in enumerate(NameList):
+                bound = result[i]['box']
+                #发送信号
+                self.Dynamic_Bound_Name.emit(bound[0],bound[1],bound[2],bound[3],name)
+
+        else:
+            pass
 
 
     def cal_cosdistance(self, vec1, vec2):
