@@ -23,10 +23,10 @@ from get_landmarks import get_five_points_landmarks
 import net_sphere
 
 
-
+#initialize network
 parser = argparse.ArgumentParser(description='PyTorch sphereface lfw')
 parser.add_argument('--net','-n', default='sphere20a', type=str)
-parser.add_argument('--model','-m', default='../my_face_model/model/sphere20a_20171020.pth', type=str)
+parser.add_argument('--model','-m', default='../model/sphere20a_20171020.pth', type=str)
 args = parser.parse_args()
 
 net = getattr(net_sphere,args.net)()
@@ -130,11 +130,11 @@ class AddFaceThread(QThread):
         #获取feature 向量
         output_imgs_features = self.get_imgs_features(aligment_imgs)
 
-        print('get image featrure ok')
+        # print('get image featrure ok')
         name, ok = QInputDialog.getText(self.inputWidget, "Get name", "Your name:", QLineEdit.Normal, "")
         if ok and name!='':
             self.db.insert([name],[11],[output_imgs_features],['2018-07-07 05:23:52'])
-        print('insert ok')
+        # print('insert ok')
 
 
     def cal_cosdistance(self, vec1, vec2):

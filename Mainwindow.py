@@ -482,7 +482,7 @@ class Ui_MainWindow(QWidget):
     #相机显示
     def show_camera(self):
         flag, self.image= self.cap.read()
-        if self.FaceThread.isRunning()==False and self.recognition_flag==True:
+        if self.recognition_flag==True:
             self.FaceThread.SetImg(self.image,method=1)
 
         show = cv2.resize(self.image, (800, 600))
@@ -502,6 +502,7 @@ class Ui_MainWindow(QWidget):
 
     def DynamicShow(self,bound0,bound1,bound2,bound3,name):
         tx=time.strftime('%Y-%m-%d %H:%M:%S')
+
         cv2.putText(self.image, name, (bound0, bound1), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 1)
         cv2.putText(self.image, str('time:') + str(tx), (bound0 + 10, bound1 + 10),
                     cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1)
