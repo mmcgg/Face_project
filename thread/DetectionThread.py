@@ -13,49 +13,28 @@ import cv2
 import dlib
 import numpy as np
 from mtcnn.mtcnn import MTCNN
-
-
-
-import face_recognition
-from matlab_cp2tform import get_similarity_transform_for_cv2
-from PIL import Image
-from get_landmarks import get_five_points_landmarks
-import net_sphere
-
-
-
-parser = argparse.ArgumentParser(description='PyTorch sphereface lfw')
-parser.add_argument('--net','-n', default='sphere20a', type=str)
-parser.add_argument('--model','-m', default='../my_face_model/model/sphere20a_20171020.pth', type=str)
-args = parser.parse_args()
-
-net = getattr(net_sphere,args.net)()
-net.load_state_dict(torch.load(args.model))
-#net.cuda()
-net.eval()
-net.feature = True
-
-
+from includes.Face.matlab_cp2tform import get_similarity_transform_for_cv2
+import includes.Face.net_sphere  as net_sphere
 import sys
 from PyQt5.QtCore import *
 import cv2
 import numpy as np
 import warnings
+from mtcnn.mtcnn import MTCNN
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import os
-from mtcnn.mtcnn import MTCNN
-from PyMySQL import *
-
+from includes.pymysql.PyMySQL import *
 #识别算法的线程
 class DetectionThread(QThread):
     #传出的信号为图片中人脸的位置矩形以及识别出的人名
     Bound_Name = pyqtSignal(int,int,int,int,str)
     Dynamic_Bound_Name = pyqtSignal(int,int,int,int,str)
-    def __init__(self,detector):
+    def __init__(self,detector,net):
         super(DetectionThread, self).__init__()
         #为自己导入模型
+        self.net = net
         self.detector = detector
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         self.thres = 0.5 #判断人脸相似度的阈值
@@ -170,8 +149,10 @@ class DetectionThread(QThread):
         return cosdistance
 
     def get_imgs_features(self, imgs_alignment):
+        print('getting feature')
         input_images = Variable(torch.from_numpy(imgs_alignment).float(), volatile=True)
-        output_features = net(input_images)
+        print('ok')
+        output_features = self.net(input_images)
         output_features = output_features.data.numpy()
         return output_features
 
@@ -183,7 +164,7 @@ class DetectionThread(QThread):
 
         s = np.array(src_pts).astype(np.float32)
         r = np.array(ref_pts).astype(np.float32)
-
+        print('transfering')
         tfm = get_similarity_transform_for_cv2(s, r)
         face_img = cv2.warpAffine(src_img, tfm, crop_size)
         return face_img

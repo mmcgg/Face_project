@@ -13,58 +13,31 @@ import cv2
 import dlib
 import numpy as np
 from mtcnn.mtcnn import MTCNN
-
-
-
-import face_recognition
-from matlab_cp2tform import get_similarity_transform_for_cv2
-from PIL import Image
-from get_landmarks import get_five_points_landmarks
-import net_sphere
-
-
-#initialize network
-parser = argparse.ArgumentParser(description='PyTorch sphereface lfw')
-parser.add_argument('--net','-n', default='sphere20a', type=str)
-parser.add_argument('--model','-m', default='../model/sphere20a_20171020.pth', type=str)
-args = parser.parse_args()
-
-net = getattr(net_sphere,args.net)()
-net.load_state_dict(torch.load(args.model))
-#net.cuda()
-net.eval()
-net.feature = True
-
-
+from includes.Face.matlab_cp2tform import get_similarity_transform_for_cv2
+import includes.Face.net_sphere  as net_sphere
 import sys
 from PyQt5.QtCore import *
 import cv2
 import numpy as np
 import warnings
-import DataPrepare_v1 as DataPrepare
 from mtcnn.mtcnn import MTCNN
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import os
-from mtcnn.mtcnn import MTCNN
-
 sys.setrecursionlimit(1000000)
-myFolder = os.path.split(os.path.realpath(__file__))[0]
-sys.path = [os.path.join(myFolder, 'pymysql')
-] + sys.path
 
-os.chdir(myFolder)
+from includes.pymysql.PyMySQL import *
 
-from PyMySQL import *
 #添加新人脸的线程
 class AddFaceThread(QThread):
     #传出的信号为图片中人脸的位置矩形以及识别出的人名
     Bound_box = pyqtSignal(int,int,int,int)
     No_face = pyqtSignal()
-    def __init__(self,detector):
+    def __init__(self,detector,net):
         super(AddFaceThread, self).__init__()
         self.detector = detector
+        self.net = net
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         self.inputWidget = QWidget()
     def SetImg(self,img):
@@ -148,7 +121,7 @@ class AddFaceThread(QThread):
 
     def get_imgs_features(self, imgs_alignment):
         input_images = Variable(torch.from_numpy(imgs_alignment).float(), volatile=True)
-        output_features = net(input_images)
+        output_features = self.net(input_images)
         output_features = output_features.data.numpy()
         return output_features
 

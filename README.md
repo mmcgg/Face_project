@@ -1,12 +1,30 @@
+
+
 # Face_project
 
-## Model
+## Model Installation
 
-人脸识别模型需要通过百度云下载
+Face model is here, download and install the model folder in the project folder
 
 https://pan.baidu.com/s/1AbIxu066iBVeClGOshdu9w 密码 qgjd
 
-安装至项目文件夹即可
 
 
+## Installation
+
+You should have python3.5+ environment.
+
+1.clone the repository:
+
+```
+git clone https://github.com/gyfastas/Face_project.git
+```
+
+2.install python requirements
+
+```
+pip install -r requirements.txt
+```
+
+3.run Mainwindow.py
 

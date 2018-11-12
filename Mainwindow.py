@@ -1,4 +1,36 @@
 from __future__ import print_function
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
+from torch.autograd import Variable
+torch.backends.cudnn.bencmark = True
+import argparse
+
+import os
+import cv2
+import dlib
+import numpy as np
+from mtcnn.mtcnn import MTCNN
+
+from includes.Face.matlab_cp2tform import get_similarity_transform_for_cv2
+import includes.Face.net_sphere  as net_sphere
+
+#import network model
+parser = argparse.ArgumentParser(description='PyTorch sphereface lfw')
+parser.add_argument('--net','-n', default='sphere20a', type=str)
+parser.add_argument('--model','-m', default='./model/sphere20a_20171020.pth', type=str)
+args = parser.parse_args()
+
+
+net = getattr(net_sphere,args.net)()
+net.load_state_dict(torch.load(args.model))
+#net.cuda()
+net.eval()
+net.feature = True
+
+
 import sys
 from PyQt5 import QtCore, QtGui,QtWidgets
 from PyQt5.QtCore import *
@@ -9,7 +41,7 @@ import os
 
 sys.setrecursionlimit(1000000)
 myFolder = os.path.split(os.path.realpath(__file__))[0]
-sys.path = [os.path.join(myFolder, 'pymysql')
+sys.path = [os.path.join(myFolder, 'thread')
            ,os.path.join(myFolder,'resources')
 ] + sys.path
 
@@ -18,9 +50,9 @@ import cv2
 import numpy as np
 from mtcnn.mtcnn import MTCNN
 import time
-import DataPrepare_v1 as DataPrepare
 import warnings
-from PyMySQL import *
+from includes.pymysql.PyMySQL import *
+
 
 from DetectionThread import DetectionThread
 from AddFaceThread import AddFaceThread
@@ -36,9 +68,9 @@ class Ui_MainWindow(QWidget):
         #相机区域
         #人脸识别与记录线程
         self.detector = MTCNN()
-        self.FaceThread = DetectionThread(self.detector)
+        self.FaceThread = DetectionThread(self.detector,net)
         #添加新人脸的线程
-        self.AddFaceThread = AddFaceThread(self.detector)
+        self.AddFaceThread = AddFaceThread(self.detector,net)
         self.timer_camera = QtCore.QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0
@@ -427,7 +459,7 @@ class Ui_MainWindow(QWidget):
         self.ac_open_cama = self._contextMenu.addAction('打开相机', self.CameraOperation)
         self.ac_detection = self._contextMenu.addAction('一键签到', self.RecognitionOn)
         self.ac_Addface = self._contextMenu.addAction('添加新人脸',self.AddFace)
-        self.ac_DynamicRecog = self._contextMenu.addAction('开启动态识别',self.DynamicRecogOn)
+        #self.ac_DynamicRecog = self._contextMenu.addAction('开启动态识别',self.DynamicRecogOn)
     def initAnimation(self):
         # 按钮动画
         self._animation = QPropertyAnimation(

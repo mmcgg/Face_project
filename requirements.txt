@@ -1,0 +1,7 @@
+pyqt5
+opencv-python
+torch
+tensorflow
+mtcnn
+dlib
+numpy
