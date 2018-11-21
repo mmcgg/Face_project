@@ -88,15 +88,42 @@ class Ui_MainWindow(QWidget):
 
         self.facelabel_list = []
         self.textlabel_list = []
-
+        self.name_list = []
         self.setLabelList()
 
 
     def setLabelList(self):
         self.facelabel_list.append(self.FaceLabel1_1)
-        self.facelabel_list.append(self.FaceLabel1_2)
+        self.facelabel_list.append(self.FaceLabel1_3)
+        self.facelabel_list.append(self.FaceLabel1_4)
+        self.facelabel_list.append(self.FaceLabel2_1)
+        self.facelabel_list.append(self.FaceLabel2_2)
+        self.facelabel_list.append(self.FaceLabel2_3)
+        self.facelabel_list.append(self.FaceLabel2_4)
+        self.facelabel_list.append(self.FaceLabel3_1)
+        self.facelabel_list.append(self.FaceLabel3_2)
+        self.facelabel_list.append(self.FaceLabel3_3)
+        self.facelabel_list.append(self.FaceLabel3_4)
+        self.facelabel_list.append(self.FaceLabel4_1)
+        self.facelabel_list.append(self.FaceLabel4_2)
+        self.facelabel_list.append(self.FaceLabel4_3)
+        self.facelabel_list.append(self.FaceLabel4_4)
+
         self.textlabel_list.append(self.TextLabel1_1)
         self.textlabel_list.append(self.TextLabel1_2)
+        self.textlabel_list.append(self.TextLabel1_3)
+        self.textlabel_list.append(self.TextLabel1_4)
+        self.textlabel_list.append(self.TextLabel2_1)
+        self.textlabel_list.append(self.TextLabel2_2)
+        self.textlabel_list.append(self.TextLabel2_4)
+        self.textlabel_list.append(self.TextLabel3_1)
+        self.textlabel_list.append(self.TextLabel3_2)
+        self.textlabel_list.append(self.TextLabel3_3)
+        self.textlabel_list.append(self.TextLabel3_4)
+        self.textlabel_list.append(self.TextLabel4_1)
+        self.textlabel_list.append(self.TextLabel4_2)
+        self.textlabel_list.append(self.TextLabel4_3)
+        self.textlabel_list.append(self.TextLabel4_4)
 
 
 
@@ -596,10 +623,20 @@ class Ui_MainWindow(QWidget):
         # self.screen = QGraphicsScene()
         # self.screen.addItem(pix)
         # self.FaceGraphView.setScene(self.screen)
-        # self.FaceLabel1_1.setPixmap(pix)
-        tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
-        all_str = '姓名:'+name +'\n'+'时间:'+tx
-        self.TextLabel1_1.setText(all_str)
+        if name in self.name_list:
+            index = self.name_list.index(name)
+            number = int(self.name_list[index-1])
+            self.facelabel_list[number].setPixmap(pix)
+            tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
+            all_str = '姓名:' + name + '\n' + '时间:' + tx
+            self.textlabel_list[number].setText(all_str)
+        else:
+            self.name_list.append(str(self.face_num%15))
+            self.name_list.append(name)
+            self.facelabel_list[self.face_num%15].setPixmap(pix)
+            tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
+            all_str = '姓名:'+name +'\n'+'时间:'+tx
+            self.textlabel_list[self.face_num%15].setText(all_str)
 
         self.InstantFaceLabel.setPixmap(QPixmap.fromImage(showImage))
         self.timer_instant.start(1000)

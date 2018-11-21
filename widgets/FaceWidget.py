@@ -16,13 +16,23 @@ class FaceWidget(QStackedWidget):
         self.faceWidth = 240
         self.faceHeight = 320
         self.facenum = 0
+        self.pagelist = []
+        self.FaceLabelList = []
+        self.TextLabelList = []
+
     def SetPage(self):
         self.page1  = QWidget()
         self.page2  = QWidget()
         self.page3  = QWidget()
         self.page4  = QWidget()
 
+        self.pagelist.append(self.page1)
+        self.pagelist.append(self.page2)
+        self.pagelist.append(self.page3)
+        self.pagelist.append(self.page4)
     def SetLabel(self):
+
+
     #添加人脸到窗口里
     def PushFace(self):
         self.alabel = QLabel(self.page1)
