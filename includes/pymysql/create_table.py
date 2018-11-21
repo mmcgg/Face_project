@@ -11,7 +11,7 @@ def create():
     cursor = connection.cursor()
 
     cursor.execute("DROP TABLE IF EXISTS FEATUREVECTOR")
-
+    
     sql = """CREATE TABLE FEATUREVECTOR (
              ID INT(11) NOT NULL AUTO_INCREMENT,
              NAME CHAR(30) NOT NULL COLLATE utf8_bin NOT NULL,

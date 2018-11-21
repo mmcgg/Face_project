@@ -494,14 +494,14 @@ class Ui_MainWindow(QWidget):
 
     #设置logo
     def Set_logo(self):
-        self.horizontalLayoutWidget_19.setAutoFillBackground(True)
-        image = QPixmap()
-        image.load('schoolLogo.jpg')
-        self.Qpa2 = QPalette()
-        self.Qpa2.setBrush(self.backgroundRole(),QBrush(image))
-        self.horizontalLayoutWidget_19.setPalette(self.Qpa2)
+        image = cv2.imread('./resources/schoolLogo.jpg')
+        show = cv2.resize(image,(200,200))
+        show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
+        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
 
+        pix = QPixmap.fromImage(showImage)
 
+        self.SJTULogoLabel.setPixmap(pix)
 
     def contextMenuEvent(self, event):
         pos = event.globalPos()
