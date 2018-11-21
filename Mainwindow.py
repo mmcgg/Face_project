@@ -1,5 +1,4 @@
 from __future__ import print_function
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -7,14 +6,14 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 torch.backends.cudnn.bencmark = True
 import argparse
-
 import os
 import cv2
 import dlib
 import numpy as np
 from mtcnn.mtcnn import MTCNN
-
 from includes.Face.matlab_cp2tform import get_similarity_transform_for_cv2
+from includes.thread.AddFaceThread import AddFaceThread
+from includes.thread.DetectionThread import DetectionThread
 import includes.Face.net_sphere  as net_sphere
 
 #import network model
@@ -52,10 +51,6 @@ from mtcnn.mtcnn import MTCNN
 import time
 import warnings
 from includes.pymysql.PyMySQL import *
-
-
-from DetectionThread import DetectionThread
-from AddFaceThread import AddFaceThread
 warnings.filterwarnings('ignore')
 
 class Ui_MainWindow(QWidget):
@@ -63,6 +58,7 @@ class Ui_MainWindow(QWidget):
         super(Ui_MainWindow, self).__init__(parent)
 
 
+        self.face_num  = 0
         #数据库调用
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         #相机区域
@@ -72,8 +68,9 @@ class Ui_MainWindow(QWidget):
         #添加新人脸的线程
         self.AddFaceThread = AddFaceThread(self.detector,net)
         self.timer_camera = QtCore.QTimer()
+        self.timer_instant  = QTimer()
         self.cap = cv2.VideoCapture()
-        self.CAM_NUM = 0
+        self.CAM_NUM = 0    #Camera used
         self.resize(1022, 670)
 
         self.set_ui()
@@ -89,11 +86,25 @@ class Ui_MainWindow(QWidget):
         self.setBackGround()
         self.Set_logo()
 
+        self.facelabel_list = []
+        self.textlabel_list = []
+
+        self.setLabelList()
+
+
+    def setLabelList(self):
+        self.facelabel_list.append(self.FaceLabel1_1)
+        self.facelabel_list.append(self.FaceLabel1_2)
+        self.textlabel_list.append(self.TextLabel1_1)
+        self.textlabel_list.append(self.TextLabel1_2)
+
 
 
     def set_ui(self):
         self.resize(1114, 861)
 
+        self.InstantFaceLabel = QLabel(self)
+        self.InstantFaceLabel.setGeometry(QRect(0,0,240,160))
         self.horizontalLayoutWidget = QtWidgets.QWidget(self)
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(0, 230, 731, 561))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
@@ -187,7 +198,7 @@ class Ui_MainWindow(QWidget):
         self.TextLabel1_4 = QtWidgets.QLabel(self.verticalLayoutWidget_5)
         self.TextLabel1_4.setObjectName("TextLabel1_4")
         self.verticalLayout_8.addWidget(self.TextLabel1_4)
-        self.FaceTab.addTab(self.tab, "")
+        self.FaceTab.addTab(self.tab, "Page1")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
         self.verticalLayoutWidget_6 = QtWidgets.QWidget(self.tab_2)
@@ -262,7 +273,7 @@ class Ui_MainWindow(QWidget):
         self.FaceLabel2_4 = QtWidgets.QLabel(self.horizontalLayoutWidget_10)
         self.FaceLabel2_4.setObjectName("FaceLabel2_4")
         self.horizontalLayout_10.addWidget(self.FaceLabel2_4)
-        self.FaceTab.addTab(self.tab_2, "")
+        self.FaceTab.addTab(self.tab_2, "Page2")
         self.tab_3 = QtWidgets.QWidget()
         self.tab_3.setObjectName("tab_3")
         self.verticalLayoutWidget_10 = QtWidgets.QWidget(self.tab_3)
@@ -337,7 +348,7 @@ class Ui_MainWindow(QWidget):
         self.FaceLabel3_4 = QtWidgets.QLabel(self.horizontalLayoutWidget_14)
         self.FaceLabel3_4.setObjectName("FaceLabel3_4")
         self.horizontalLayout_14.addWidget(self.FaceLabel3_4)
-        self.FaceTab.addTab(self.tab_3, "")
+        self.FaceTab.addTab(self.tab_3, "Page3")
         self.tab_4 = QtWidgets.QWidget()
         self.tab_4.setObjectName("tab_4")
         self.verticalLayoutWidget_14 = QtWidgets.QWidget(self.tab_4)
@@ -412,8 +423,22 @@ class Ui_MainWindow(QWidget):
         self.FaceLabel4_4 = QtWidgets.QLabel(self.horizontalLayoutWidget_18)
         self.FaceLabel4_4.setObjectName("FaceLabel4_4")
         self.horizontalLayout_18.addWidget(self.FaceLabel4_4)
-        self.FaceTab.addTab(self.tab_4, "")
+        self.FaceTab.addTab(self.tab_4, "Page4")
         self.TabLayout.addWidget(self.FaceTab)
+
+        self.tab_5 = QtWidgets.QWidget()
+        self.tab_5.setObjectName("tab_5")
+        self.verticalLayoutWidget_tab5 = QtWidgets.QWidget(self.tab_5)
+        self.verticalLayoutWidget_tab5.setGeometry(QtCore.QRect(200, 600, 141, 191))
+        self.verticalLayoutWidget_tab5.setObjectName("verticalLayoutWidget_tab5")
+        self.verticalLayout_tab5 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_tab5)
+        self.verticalLayout_tab5.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_tab5.setObjectName("verticalLayout_tab5")
+        self.FaceGraphView = QGraphicsView(self.verticalLayoutWidget_tab5)
+        self.verticalLayout_tab5.addWidget(self.FaceGraphView)
+        self.FaceTab.addTab(self.tab_5,"")
+
+
         self.horizontalLayoutWidget_19 = QtWidgets.QWidget(self)
         self.horizontalLayoutWidget_19.setGeometry(QtCore.QRect(360, 20, 351, 191))
         self.horizontalLayoutWidget_19.setObjectName("horizontalLayoutWidget_19")
@@ -430,6 +455,7 @@ class Ui_MainWindow(QWidget):
 
     #设置背景
     def setBackGround(self):
+        self.horizontalLayoutWidget_2.setAutoFillBackground(True)
         self.FaceTab.setAutoFillBackground(True)
         self.setAutoFillBackground(True)
         image  = QPixmap()
@@ -441,9 +467,15 @@ class Ui_MainWindow(QWidget):
 
     #设置logo
     def Set_logo(self):
-        pix = QPixmap('schoolLogo.jpg')
-        self.SJTULogoLabel.setScaledContents(True)
-        self.SJTULogoLabel.setPixmap(pix)
+        self.horizontalLayoutWidget_19.setAutoFillBackground(True)
+        image = QPixmap()
+        image.load('schoolLogo.jpg')
+        self.Qpa2 = QPalette()
+        self.Qpa2.setBrush(self.backgroundRole(),QBrush(image))
+        self.horizontalLayoutWidget_19.setPalette(self.Qpa2)
+
+
+
     def contextMenuEvent(self, event):
         pos = event.globalPos()
         size = self._contextMenu.sizeHint()
@@ -459,6 +491,7 @@ class Ui_MainWindow(QWidget):
         self.ac_open_cama = self._contextMenu.addAction('打开相机', self.CameraOperation)
         self.ac_detection = self._contextMenu.addAction('一键签到', self.RecognitionOn)
         self.ac_Addface = self._contextMenu.addAction('添加新人脸',self.AddFace)
+        self.ac_ResetTab = self._contextMenu.addAction('清除列表',self.ResetTab)
         #self.ac_DynamicRecog = self._contextMenu.addAction('开启动态识别',self.DynamicRecogOn)
     def initAnimation(self):
         # 按钮动画
@@ -471,6 +504,7 @@ class Ui_MainWindow(QWidget):
     def slot_init(self):
 
         self.timer_camera.timeout.connect(self.show_camera)
+        self.timer_instant.timeout.connect(self.DelInstantFace)
         #人脸识别算法完成后在右边的tab widget 中显示
         self.FaceThread.Bound_Name.connect(self.ShowInTab)
         #动态识别算法调用后实时画脸
@@ -550,16 +584,25 @@ class Ui_MainWindow(QWidget):
     #             add_new_face(self.image,name)
 
     def ShowInTab(self,bound0,bound1,bound2,bound3,name):
-        print('Signal:',bound0,bound1,bound2,bound3,name)
+
         face = self.RecogImage[bound1:bound1 + bound3,
                     bound0:bound0 + bound2]
         show = cv2.resize(face, (200,200))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
-        self.FaceLabel1_1.setPixmap(QtGui.QPixmap.fromImage(showImage))
+
+        pix = QPixmap.fromImage(showImage)
+        # self.item = QGraphicsPixmapItem(pix)
+        # self.screen = QGraphicsScene()
+        # self.screen.addItem(pix)
+        # self.FaceGraphView.setScene(self.screen)
+        # self.FaceLabel1_1.setPixmap(pix)
         tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
-        all_str = name +'\n'+tx
+        all_str = '姓名:'+name +'\n'+'时间:'+tx
         self.TextLabel1_1.setText(all_str)
+
+        self.InstantFaceLabel.setPixmap(QPixmap.fromImage(showImage))
+        self.timer_instant.start(1000)
 
     def closeEvent(self, event):
         ok = QtWidgets.QPushButton()
@@ -581,7 +624,44 @@ class Ui_MainWindow(QWidget):
                 self.timer_camera.stop()
             event.accept()
 
+    def ResetTab(self):
+        self.face_num = 0
+        self.FaceLabel1_1.clear()
+        self.FaceLabel1_2.clear()
+        self.FaceLabel1_3.clear()
+        self.FaceLabel1_4.clear()
+        self.FaceLabel2_1.clear()
+        self.FaceLabel2_2.clear()
+        self.FaceLabel2_3.clear()
+        self.FaceLabel2_4.clear()
+        self.FaceLabel3_1.clear()
+        self.FaceLabel3_2.clear()
+        self.FaceLabel3_3.clear()
+        self.FaceLabel3_4.clear()
+        self.FaceLabel4_1.clear()
+        self.FaceLabel4_2.clear()
+        self.FaceLabel4_3.clear()
+        self.FaceLabel4_4.clear()
+        self.TextLabel1_1.clear()
+        self.TextLabel1_2.clear()
+        self.TextLabel1_3.clear()
+        self.TextLabel1_4.clear()
+        self.TextLabel2_1.clear()
+        self.TextLabel2_2.clear()
+        self.TextLabel2_3.clear()
+        self.TextLabel2_4.clear()
+        self.TextLabel3_1.clear()
+        self.TextLabel3_2.clear()
+        self.TextLabel3_3.clear()
+        self.TextLabel3_4.clear()
+        self.TextLabel4_1.clear()
+        self.TextLabel4_2.clear()
+        self.TextLabel4_3.clear()
+        self.TextLabel4_4.clear()
 
+
+    def DelInstantFace(self):
+        self.InstantFaceLabel.clear()
 
 app = QtWidgets.QApplication(sys.argv)
 ui = Ui_MainWindow()

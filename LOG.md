@@ -101,3 +101,13 @@ https://blog.csdn.net/dao_wolf/article/details/79123599 Django的框架
 清理代码|
 
 怎么用python 的 os 库来完成文件夹的文件合并？
+
+
+
+### 11.21
+
+https://blog.csdn.net/weixin_39964552/article/details/82937144 利用Qgraphicview设置图片
+
+https://blog.csdn.net/gusgao/article/details/48930229
+
+https://blog.csdn.net/windscloud/article/details/79732014 python del的用法
