@@ -52,12 +52,15 @@ from PyMySQL import *
 class DetectionThread(QThread):
     #传出的信号为图片中人脸的位置矩形以及识别出的人名
     Bound_Name = pyqtSignal(int,int,int,int,str)
+    No_Face = pyqtSignal()
+    Show_Face = pyqtSignal(int)
     def __init__(self,detector):
         super(DetectionThread, self).__init__()
         #为自己导入模型
         self.detector = detector
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         self.thres = 0.5 #判断人脸相似度的阈值
+        self.show_time = 200 #动态人脸显示停留时间
         self.MWindow = QWidget()
     def SetImg(self,img):
         self.img = img
@@ -72,7 +75,7 @@ class DetectionThread(QThread):
 
         #如果没有检测出人脸，发出一个信号并且提前停止线程
         if len(result) == 0 :
-            print('No face')
+            self.No_Face.emit()
             return
         aligment_imgs = []
         originfaces = []

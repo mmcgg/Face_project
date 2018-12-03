@@ -69,6 +69,7 @@ class Ui_MainWindow(QWidget):
         self.AddFaceThread = AddFaceThread(self.detector,net)
         self.timer_camera = QtCore.QTimer()
         self.timer_instant  = QTimer()
+        self.timer_dynamic  = QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0    #Camera used
         self.resize(1022, 670)
@@ -519,7 +520,7 @@ class Ui_MainWindow(QWidget):
         self.ac_detection = self._contextMenu.addAction('一键签到', self.RecognitionOn)
         self.ac_Addface = self._contextMenu.addAction('添加新人脸',self.AddFace)
         self.ac_ResetTab = self._contextMenu.addAction('清除列表',self.ResetTab)
-        #self.ac_DynamicRecog = self._contextMenu.addAction('开启动态识别',self.DynamicRecogOn)
+        self.ac_DynamicRecog = self._contextMenu.addAction('开启动态识别',self.DynamicRecogOn)
     def initAnimation(self):
         # 按钮动画
         self._animation = QPropertyAnimation(
@@ -535,7 +536,7 @@ class Ui_MainWindow(QWidget):
         #人脸识别算法完成后在右边的tab widget 中显示
         self.FaceThread.Bound_Name.connect(self.ShowInTab)
         #动态识别算法调用后实时画脸
-        self.FaceThread.Dynamic_Bound_Name.connect(self.DynamicShow)
+        self.FaceThread.Dynamic_Bound_Name.connect(self.show_camera)
     def AddFace(self):
         if self.timer_camera.isActive() == False:
             flag = self.cap.open(self.CAM_NUM)
@@ -573,11 +574,15 @@ class Ui_MainWindow(QWidget):
             self.MainCameraLabel.clear()
             self.ac_open_cama.setText('打开相机')
     #相机显示
-    def show_camera(self):
+    def show_camera_5(self,bound0,bound1,bound2,bound3,name):
         flag, self.image= self.cap.read()
         if self.recognition_flag==True:
             self.FaceThread.SetImg(self.image,method=1)
 
+        tx=time.strftime('%Y-%m-%d %H:%M:%S')
+        cv2.putText(self.image, name, (bound0, bound1), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 1)
+        cv2.putText(self.image, str('time:') + str(tx), (bound0 + 10, bound1 + 10),
+                    cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1)
         show = cv2.resize(self.image, (800, 600))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0],QImage.Format_RGB888 )
@@ -593,12 +598,6 @@ class Ui_MainWindow(QWidget):
             self.RecogImage = self.image.copy()
             self.FaceThread.SetImg(self.image)
 
-    def DynamicShow(self,bound0,bound1,bound2,bound3,name):
-        tx=time.strftime('%Y-%m-%d %H:%M:%S')
-
-        cv2.putText(self.image, name, (bound0, bound1), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 1)
-        cv2.putText(self.image, str('time:') + str(tx), (bound0 + 10, bound1 + 10),
-                    cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1)
 
     # def button_wrtieface_click(self):
     #     if self.timer_camera.isActive() == False:
