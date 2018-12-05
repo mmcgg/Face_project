@@ -15,6 +15,7 @@ from includes.Face.matlab_cp2tform import get_similarity_transform_for_cv2
 from includes.thread.AddFaceThread import AddFaceThread
 from includes.thread.DetectionThread import DetectionThread
 import includes.Face.net_sphere  as net_sphere
+import qdarkstyle
 
 #import network model
 parser = argparse.ArgumentParser(description='PyTorch sphereface lfw')
@@ -85,13 +86,15 @@ class Ui_MainWindow(QWidget):
         #初始化
         self.initMenu()
         self.initAnimation()
-        self.setBackGround()
+        # self.setBackGround()
         self.Set_logo()
 
         self.facelabel_list = []
         self.textlabel_list = []
         self.name_list = []
         self.setLabelList()
+
+        self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
 
     def setLabelList(self):
@@ -571,6 +574,8 @@ class Ui_MainWindow(QWidget):
             self.recognition_flag = False
             self.ac_DynamicRecog.setText('开启动态识别')
     #打开相机操作
+
+
     def CameraOperation(self):
         if self.timer_camera.isActive() == False:
             flag = self.cap.open(self.CAM_NUM)
@@ -616,7 +621,6 @@ class Ui_MainWindow(QWidget):
             self.RecogImage = self.image.copy()
             self.FaceThread.SetImg(self.image)
 
-
     # def button_wrtieface_click(self):
     #     if self.timer_camera.isActive() == False:
     #         msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please open your camara ", buttons=QtWidgets.QMessageBox.Ok,
@@ -626,7 +630,6 @@ class Ui_MainWindow(QWidget):
     #                                         QLineEdit.Normal, self.nameLable.text())
     #         if(ok and (len(name)!=0)):
     #             add_new_face(self.image,name)
-
     def ShowInTab(self,bound0,bound1,bound2,bound3,name):
 
         face = self.RecogImage[bound1:bound1 + bound3,
@@ -655,8 +658,6 @@ class Ui_MainWindow(QWidget):
             all_str = '姓名:'+name +'\n'+'时间:'+tx
             self.textlabel_list[self.face_num%15].setText(all_str)
 
-        self.InstantFaceLabel.setPixmap(QPixmap.fromImage(showImage))
-        self.timer_instant.start(1000)
 
     def closeEvent(self, event):
         ok = QtWidgets.QPushButton()
