@@ -111,3 +111,16 @@ https://blog.csdn.net/weixin_39964552/article/details/82937144 利用Qgraphicvie
 https://blog.csdn.net/gusgao/article/details/48930229
 
 https://blog.csdn.net/windscloud/article/details/79732014 python del的用法
+
+
+
+### 12.5
+
+#### Issue
+
+1.动态人脸识别怎么实现? 应该以什么样的方式实现？ 
+
+
+
+#### Solution
+

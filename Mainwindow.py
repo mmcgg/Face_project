@@ -72,6 +72,7 @@ class Ui_MainWindow(QWidget):
         self.timer_dynamic  = QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0    #Camera used
+        self.faceBuffer = [] #Face Buffer
         self.resize(1022, 670)
 
         self.set_ui()
@@ -532,11 +533,23 @@ class Ui_MainWindow(QWidget):
     def slot_init(self):
 
         self.timer_camera.timeout.connect(self.show_camera)
-        self.timer_instant.timeout.connect(self.DelInstantFace)
+        self.timer_instant.timeout.connect(self.delFaceBuffer)
         #人脸识别算法完成后在右边的tab widget 中显示
         self.FaceThread.Bound_Name.connect(self.ShowInTab)
         #动态识别算法调用后实时画脸
-        self.FaceThread.Dynamic_Bound_Name.connect(self.show_camera)
+        self.FaceThread.Dynamic_Bound_Name.connect(self.pushFaceBuffer)
+        self.FaceThread.Dynamic_Show_Time.connect(self.setDynamicShowTime)
+
+    def delFaceBuffer(self):
+        self.faceBuffer.clear()
+
+    def pushFaceBuffer(self,bound0,bound1,bound2,bound3,name):
+        self.faceBuffer.append([bound0,bound1,bound2,bound3,name])
+
+    def setDynamicShowTime(self,t):
+        self.timer_instant.start(t)
+
+
     def AddFace(self):
         if self.timer_camera.isActive() == False:
             flag = self.cap.open(self.CAM_NUM)
@@ -574,15 +587,20 @@ class Ui_MainWindow(QWidget):
             self.MainCameraLabel.clear()
             self.ac_open_cama.setText('打开相机')
     #相机显示
-    def show_camera_5(self,bound0,bound1,bound2,bound3,name):
+    def show_camera(self):
         flag, self.image= self.cap.read()
-        if self.recognition_flag==True:
+        if self.recognition_flag==True and self.timer_instant.isActive==False:
             self.FaceThread.SetImg(self.image,method=1)
 
-        tx=time.strftime('%Y-%m-%d %H:%M:%S')
-        cv2.putText(self.image, name, (bound0, bound1), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 1)
-        cv2.putText(self.image, str('time:') + str(tx), (bound0 + 10, bound1 + 10),
+        elif self.recognition_flag==True and self.timer_instant.isActive==True:
+            if self.faceBuffer:
+                tx=time.strftime('%Y-%m-%d %H:%M:%S')
+                for bound_name in self.faceBuffer:
+                    cv2.rectangle(self.image,(bound_name[0],bound_name[1]),(bound_name[0]+bound_name[2],bound_name[1]+bound_name[3]),(0,255,0))
+                    cv2.putText(self.image, bound_name[-1], (bound_name[0], bound_name[1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 1)
+                    cv2.putText(self.image, str('time:') + str(tx), (bound_name[0] + 10, bound_name[1] + 10),
                     cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1)
+
         show = cv2.resize(self.image, (800, 600))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0],QImage.Format_RGB888 )
