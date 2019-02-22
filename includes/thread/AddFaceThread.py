@@ -63,6 +63,7 @@ class AddFaceThread(QThread):
 
         aligment_imgs = []
         temp_landmarks = []
+        #only cares the "closest" face, which means "biggest" in image
         maxIndex = self.Cal_Area_Index(result)
         face = result[maxIndex]
 
@@ -93,7 +94,10 @@ class AddFaceThread(QThread):
                 temp_landmarks[i] = num - bouding_boxes[1]
             else:
                 temp_landmarks[i] = num - bouding_boxes[0]
+
         faces = self.alignment(faces, temp_landmarks)
+
+        #手动 normalization
         faces = np.transpose(faces, (2, 0, 1)).reshape(1, 3, 112, 96)
         faces = (faces - 127.5) / 128.0
         aligment_imgs.append(faces)
