@@ -134,27 +134,27 @@ class PyMySQL:
         for i, info in enumerate(results_format):
             feature_vector = info[2]
             feature_vector_str = feature_vector[1:-1].split(',')
-            # print('feature str',feature_vector_str)
+
             feature_vector_float = []
-            # print('here')
+
             for s in feature_vector_str:
                 tmp_str_split = s[1:-1].split(' ')
-                # print(1)
+
 
                 for float_str in tmp_str_split:
-                    # print(2)
+
                     if float_str == '':
                         continue
                     elif float_str[-1] == 'n':
                         float_str = float_str[:-2]
                     else:
                         pass
-                    # print(3)
-                    # print(float_str)
+
+
                     float_num = float(float_str)
-                    # print(4)
+
                     feature_vector_float.append(float_num)
-            # print('last',feature_vector_float)
+
             feature_vector_list.append(feature_vector_float)
 
         return feature_vector_list

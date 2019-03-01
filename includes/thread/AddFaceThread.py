@@ -10,7 +10,7 @@ import argparse
 
 import os
 import cv2
-import dlib
+import time
 import numpy as np
 from mtcnn.mtcnn import MTCNN
 from includes.Face.matlab_cp2tform import get_similarity_transform_for_cv2
@@ -63,7 +63,6 @@ class AddFaceThread(QThread):
 
         aligment_imgs = []
         temp_landmarks = []
-        #only cares the "closest" face, which means "biggest" in image
         maxIndex = self.Cal_Area_Index(result)
         face = result[maxIndex]
 
@@ -109,8 +108,9 @@ class AddFaceThread(QThread):
 
         # print('get image featrure ok')
         name, ok = QInputDialog.getText(self.inputWidget, "Get name", "Your name:", QLineEdit.Normal, "")
+        current_time = time.strftime('%Y-%m-%d\n%H:%M:%S')
         if ok and name!='':
-            self.db.insert([name],[11],[output_imgs_features],['2018-07-07 05:23:52'])
+            self.db.insert([name],[11],[output_imgs_features],[current_time])
         # print('insert ok')
 
 

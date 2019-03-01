@@ -8,7 +8,6 @@ torch.backends.cudnn.bencmark = True
 import argparse
 import os
 import cv2
-import dlib
 import numpy as np
 from mtcnn.mtcnn import MTCNN
 from includes.Face.matlab_cp2tform import get_similarity_transform_for_cv2
@@ -26,7 +25,9 @@ args = parser.parse_args()
 
 net = getattr(net_sphere,args.net)()
 net.load_state_dict(torch.load(args.model))
-#net.cuda()
+# device = torch.device('cuda',0) if torch.cuda.is_available() else torch.device('cpu')
+device = torch.device('cpu')
+net.to(device)
 net.eval()
 net.feature = True
 
@@ -52,6 +53,7 @@ from mtcnn.mtcnn import MTCNN
 import time
 import warnings
 from includes.pymysql.PyMySQL import *
+from Widgets.DBWidge import DBWidge
 warnings.filterwarnings('ignore')
 
 class Ui_MainWindow(QWidget):
@@ -61,6 +63,8 @@ class Ui_MainWindow(QWidget):
 
         self.face_num  = 0
         #数据库调用
+        self.dbWidge = DBWidge()
+        self.dbWidge.setHidden(True)
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         #相机区域
         #人脸识别与记录线程
@@ -68,7 +72,7 @@ class Ui_MainWindow(QWidget):
         self.FaceThread = DetectionThread(self.detector,net)
         #添加新人脸的线程
         self.AddFaceThread = AddFaceThread(self.detector,net)
-        self.timer_camera = QtCore.QTimer()
+        self.timer_camera =   QTimer()
         self.timer_instant  = QTimer()
         self.timer_dynamic  = QTimer()
         self.cap = cv2.VideoCapture()
@@ -93,7 +97,7 @@ class Ui_MainWindow(QWidget):
         self.textlabel_list = []
         self.name_list = []
         self.setLabelList()
-
+        self.setLabelstyle()
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
 
@@ -130,6 +134,11 @@ class Ui_MainWindow(QWidget):
         self.textlabel_list.append(self.TextLabel4_3)
         self.textlabel_list.append(self.TextLabel4_4)
 
+
+    def setLabelstyle(self):
+        with open('./QSS/facewidge.qss','r') as q:
+
+            self.FaceLabel1_1.setStyleSheet(q.read())
 
 
     def set_ui(self):
@@ -500,7 +509,7 @@ class Ui_MainWindow(QWidget):
     #设置logo
     def Set_logo(self):
         image = cv2.imread('./resources/schoolLogo.jpg')
-        show = cv2.resize(image,(200,200))
+        show = cv2.resize(image,(250,250))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
 
@@ -525,6 +534,8 @@ class Ui_MainWindow(QWidget):
         self.ac_Addface = self._contextMenu.addAction('添加新人脸',self.AddFace)
         self.ac_ResetTab = self._contextMenu.addAction('清除列表',self.ResetTab)
         self.ac_DynamicRecog = self._contextMenu.addAction('开启动态识别',self.DynamicRecogOn)
+        self.ac_dbManager = self._contextMenu.addAction('数据库操作',self.openDBmanager)
+
     def initAnimation(self):
         # 按钮动画
         self._animation = QPropertyAnimation(
@@ -537,11 +548,17 @@ class Ui_MainWindow(QWidget):
 
         self.timer_camera.timeout.connect(self.show_camera)
         self.timer_instant.timeout.connect(self.delFaceBuffer)
+        self.timer_dynamic.timeout.connect(self.dynamicShowInTab)
         #人脸识别算法完成后在右边的tab widget 中显示
         self.FaceThread.Bound_Name.connect(self.ShowInTab)
         #动态识别算法调用后实时画脸
         self.FaceThread.Dynamic_Bound_Name.connect(self.pushFaceBuffer)
         self.FaceThread.Dynamic_Show_Time.connect(self.setDynamicShowTime)
+
+    def openDBmanager(self):
+        if self.dbWidge.isHidden():
+            self.dbWidge.setHidden(False)
+
 
     def delFaceBuffer(self):
         self.faceBuffer.clear()
@@ -567,15 +584,22 @@ class Ui_MainWindow(QWidget):
         if self.timer_camera.isActive()==False:
             msg = QtWidgets.QMessageBox.warning(self, u"warning", u"没有检测到摄像头", buttons=QtWidgets.QMessageBox.Ok,
                                                 defaultButton=QtWidgets.QMessageBox.Ok)
-        elif self.recognition_flag ==False:
-            self.recognition_flag = True
-            self.ac_DynamicRecog.setText('关闭动态识别')
         else:
-            self.recognition_flag = False
-            self.ac_DynamicRecog.setText('开启动态识别')
-    #打开相机操作
+            if self.timer_dynamic.isActive() == False:
+                self.timer_dynamic.start(300)
+                self.ac_DynamicRecog.setText('关闭动态识别')
+            else:
+                self.timer_dynamic.stop()
+                self.ac_DynamicRecog.setText('开启动态识别')
 
 
+    def dynamicShowInTab(self):
+        if self.image:
+            self.RecogImage = self.image.copy()
+            self.FaceThread.SetImg(self.image)
+
+        else:
+            print('check the image')
     def CameraOperation(self):
         if self.timer_camera.isActive() == False:
             flag = self.cap.open(self.CAM_NUM)
@@ -645,6 +669,7 @@ class Ui_MainWindow(QWidget):
         # self.FaceGraphView.setScene(self.screen)
         if name in self.name_list:
             index = self.name_list.index(name)
+            print(index)
             number = int(self.name_list[index-1])
             self.facelabel_list[number].setPixmap(pix)
             tx = time.strftime('%Y-%m-%d\n%H:%M:%S')

@@ -27,6 +27,7 @@ from PyQt5.QtGui import *
 import os
 from includes.pymysql.PyMySQL import *
 #识别算法的线程
+# device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 class DetectionThread(QThread):
     #传出的信号为图片中人脸的位置矩形以及识别出的人名
     Bound_Name = pyqtSignal(int,int,int,int,str)
@@ -34,7 +35,7 @@ class DetectionThread(QThread):
     Dynamic_Show_Time = pyqtSignal(int)
     def __init__(self,detector,net):
         super(DetectionThread, self).__init__()
-        #为自己导入模型
+        #导入识别和检测模型
         self.net = net
         self.detector = detector
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
@@ -122,7 +123,7 @@ class DetectionThread(QThread):
             else:
                 NameList.append(NameIndb[sub_cos_distances_list.index(max(sub_cos_distances_list))])
 
-        # print('Name list: ',NameList)
+        print('Name list: ',NameList)
         #method = 0: 签到
         #method = 1: 动态识别（画人脸）
         if self.method ==0:
