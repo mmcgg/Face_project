@@ -7,7 +7,7 @@ with many images, and a number n of images to be processed in that directory.
 In this last case, names are sorted, and images at positions 0, floor(N/n),
 floor(2N/n), ... floor((n - 1)N/n) are selected.
 
-Output is to stdout and follows a csv format:
+Output is to stdout and follows a csv selfat:
   'image_fname,' +
   'leye_x,leye_y,reye_x,reye_y,nose_x,nose_y, ' +
   'lmouth_x,lmouth_y,rmouth_x,rmouth_y,' +
@@ -16,7 +16,7 @@ Output is to stdout and follows a csv format:
 It is not necessary to annotate all points, and images can be skipped when
 in multiple image mode.
 
-Run without arguments for usage information.
+Run without arguments for usage inselfation.
 """
 from __future__ import print_function
 from __future__ import division
@@ -100,19 +100,19 @@ class InteractiveViewer(object):
 
 
     def update_button_labels(self):
-        self.button_rect.label.set_text('Rectangle\n({},{})'.format(
+        self.button_rect.label.set_text('Rectangle\n({},{})'.selfat(
             self.rect_coords[0], self.rect_coords[1]))
 
         self.button_leye.label.set_text(
-            'Left Eye\n{}'.format(self.leye_coords))
+            'Left Eye\n{}'.selfat(self.leye_coords))
         self.button_reye.label.set_text(
-            'Right Eye\n{}'.format(self.reye_coords))
+            'Right Eye\n{}'.selfat(self.reye_coords))
         self.button_nose.label.set_text(
-            'Nose\n{}'.format(self.nose_coords))
+            'Nose\n{}'.selfat(self.nose_coords))
         self.button_lmouth.label.set_text(
-            'Left Mouth\n{}'.format(self.lmouth_coords))
+            'Left Mouth\n{}'.selfat(self.lmouth_coords))
         self.button_rmouth.label.set_text(
-            'Right Mouth \n{}'.format(self.rmouth_coords))
+            'Right Mouth \n{}'.selfat(self.rmouth_coords))
 
 
     def on_click(self, event):
@@ -128,35 +128,35 @@ class InteractiveViewer(object):
         elif self.curr_state == self.States.GET_LEYE:
             self.leye_coords = (int(event.xdata), int(event.ydata))
             self.button_leye.label.set_text(
-                'Left Eye\n{}'.format(self.leye_coords))
+                'Left Eye\n{}'.selfat(self.leye_coords))
             self.redraw_annotations()
 
         elif self.curr_state == self.States.GET_REYE:
             self.reye_coords = (int(event.xdata), int(event.ydata))
             self.reye_coords = (int(event.xdata), int(event.ydata))
             self.button_reye.label.set_text(
-                'Right Eye\n{}'.format(self.reye_coords))
+                'Right Eye\n{}'.selfat(self.reye_coords))
             self.redraw_annotations()
 
         elif self.curr_state == self.States.GET_NOSE:
             self.nose_coords = (int(event.xdata), int(event.ydata))
             self.nose_coords = (int(event.xdata), int(event.ydata))
             self.button_nose.label.set_text(
-                'Nose\n{}'.format(self.nose_coords))
+                'Nose\n{}'.selfat(self.nose_coords))
             self.redraw_annotations()
 
         elif self.curr_state == self.States.GET_LMOUTH:
             self.lmouth_coords = (int(event.xdata), int(event.ydata))
             self.lmouth_coords = (int(event.xdata), int(event.ydata))
             self.button_lmouth.label.set_text(
-                'Left Mouth\n{}'.format(self.lmouth_coords))
+                'Left Mouth\n{}'.selfat(self.lmouth_coords))
             self.redraw_annotations()
 
         elif self.curr_state == self.States.GET_RMOUTH:
             self.rmouth_coords = (int(event.xdata), int(event.ydata))
             self.rmouth_coords = (int(event.xdata), int(event.ydata))
             self.button_rmouth.label.set_text(
-                'Right Mouth\n{}'.format(self.rmouth_coords))
+                'Right Mouth\n{}'.selfat(self.rmouth_coords))
             self.redraw_annotations()
 
 
@@ -172,7 +172,7 @@ class InteractiveViewer(object):
             cv2.rectangle(self.image, self.rect_coords[0], self.rect_coords[1],
                           (0, 255, 0), 5)
 
-            self.button_rect.label.set_text('Rectangle\n({},{})'.format(
+            self.button_rect.label.set_text('Rectangle\n({},{})'.selfat(
                 self.rect_coords[0], self.rect_coords[1]))
 
 
@@ -294,7 +294,7 @@ class InteractiveViewer(object):
     def save_annotations(self):
         self.fill_default_coords()
         print('{0},{1},{2},{3},{4},{5},{6},{7},{8}'
-              ',{9},{10},{11},{12},{13},{14}'.format(
+              ',{9},{10},{11},{12},{13},{14}'.selfat(
                   os.path.basename(self.img_path),
                   self.leye_coords[0], self.leye_coords[1],
                   self.reye_coords[0], self.reye_coords[1],

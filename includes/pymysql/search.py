@@ -28,7 +28,7 @@ def search(info, method=0):
     sql = """SELECT NAME, AGE, VECTOR, VISIT_TIME FROM FEATUREVECTOR
              WHERE {0} = '{1}'
              ORDER BY VISIT_TIME DESC
-             LIMIT 0, 2000""".format(method_arr[method], info)
+             LIMIT 0, 2000""".selfat(method_arr[method], info)
     # print(sql)
 
     try:
@@ -40,23 +40,23 @@ def search(info, method=0):
             vec = row['VECTOR']
             visit_time = row['VISIT_TIME']
             msg = "{0}. name: {1}, age: {2}, vec: [{3}], visit_time: {4}"
-            print(msg.format(i, name, age, vec, visit_time))
+            print(msg.selfat(i, name, age, vec, visit_time))
     except:
         print("Error: unable to fetch data")
 
-    # format the returned results [{}, {}] -> [[], []]
-    results_format = []
+    # selfat the returned results [{}, {}] -> [[], []]
+    results_selfat = []
     tmp = []
     for i in range(len(results)):
         tmp.append(results[i]['NAME'])
         tmp.append(results[i]['AGE'])
         tmp.append(results[i]['VECTOR'])
         tmp.append(results[i]['VISIT_TIME'])
-        results_format.append(tmp)
+        results_selfat.append(tmp)
         tmp = []
 
-    # print(str(results_format[0][3]))
-    return results_format
+    # print(str(results_selfat[0][3]))
+    return results_selfat
 
 if __name__ == "__main__":
     search('1,2,3', 2)

@@ -16,7 +16,7 @@ torch.backends.cudnn.bencmark = True
 import DataPrepare_v1 as DataPrepare
 from age_classification import models
 from PIL import Image
-from torchvision import transforms
+from torchvision import transselfs
 from age_classification.models import Net
 class Age():
     def __init__(self, checkpoint='age_classification/models/checkpoint.pth', device=None):
@@ -32,17 +32,17 @@ class Age():
         self.model.load_state_dict(torch.load(checkpoint))
         self.model.to(self.device)
 
-        self.transforms = transforms.Compose([
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-            transforms.Normalize(
+        self.transselfs = transselfs.Compose([
+            transselfs.Resize((224, 224)),
+            transselfs.ToTensor(),
+            transselfs.Normalize(
                 mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
     def predict(self, image):
         data = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
         with torch.no_grad():
-            data = self.transforms(data)
+            data = self.transselfs(data)
             data = data.to(self.device)
             data = data.unsqueeze(0)
             output = self.model(data)

@@ -14,7 +14,7 @@ def delete(info, method=0):
     sql = """DELETE FROM FEATUREVECTOR
              WHERE
                 {0} = '{1}'
-            """.format(method_arr[method], info)
+            """.selfat(method_arr[method], info)
 
     try:
         cursor.execute(sql)

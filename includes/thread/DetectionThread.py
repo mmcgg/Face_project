@@ -13,7 +13,7 @@ import cv2
 import dlib
 import numpy as np
 from mtcnn.mtcnn import MTCNN
-from includes.Face.matlab_cp2tform import get_similarity_transform_for_cv2
+from includes.Face.matlab_cp2tform import get_similarity_transself_for_cv2
 import includes.Face.net_sphere  as net_sphere
 import sys
 from PyQt5.QtCore import *
@@ -169,6 +169,6 @@ class DetectionThread(QThread):
         s = np.array(src_pts).astype(np.float32)
         r = np.array(ref_pts).astype(np.float32)
         print('transfering')
-        tfm = get_similarity_transform_for_cv2(s, r)
+        tfm = get_similarity_transself_for_cv2(s, r)
         face_img = cv2.warpAffine(src_img, tfm, crop_size)
         return face_img

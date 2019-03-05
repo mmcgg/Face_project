@@ -101,7 +101,7 @@ class Showface(QtWidgets.QScrollArea):
             self.detect_recognition()
         show = cv2.resize(self.image, (800, 600))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
-        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
+        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.selfat_RGB888)
         self.label_show_camera.setPixmap(QtGui.QPixmap.fromImage(showImage))
 
     def button_detection_click(self):

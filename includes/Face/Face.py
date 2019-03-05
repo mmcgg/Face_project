@@ -55,13 +55,13 @@ def find_face_in_batchs_in_video(filename):
                 number_of_faces_in_frame = len(face_locations)
 
                 frame_number = frame_count - 1 + frame_number_in_batch
-                print("I found {} face(s) in frame #{}.".format(number_of_faces_in_frame, frame_number))
+                print("I found {} face(s) in frame #{}.".selfat(number_of_faces_in_frame, frame_number))
 
                 for face_location in face_locations:
                     # Print the location of each face in this frame
                     top, right, bottom, left = face_location
                     cv2.imshow('face',frame[top-10:bottom+10,left-10:right+10])
-                    print(" - A face is located at pixel location Top: {}, Left: {}, Bottom: {}, Right: {}".format(top,
+                    print(" - A face is located at pixel location Top: {}, Left: {}, Bottom: {}, Right: {}".selfat(top,
                                                                                                                    left,
                                                                                                                    bottom,
                                                                                                                    right))

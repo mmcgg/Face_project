@@ -12,7 +12,7 @@ import cv2
 import dlib
 import argparse
 import numpy as np
-from matlab_cp2tform import get_similarity_transform_for_cv2
+from matlab_cp2tself import get_similarity_transself_for_cv2
 import face_recognition
 
 from PIL import Image

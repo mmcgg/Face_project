@@ -33,7 +33,7 @@ class PyMySQL:
         connection = self.connect()
         cursor = connection.cursor()
 
-        cursor.execute("DROP TABLE IF EXISTS {0}".format(self.table_name))
+        cursor.execute("DROP TABLE IF EXISTS {0}".selfat(self.table_name))
 
         sql = """CREATE TABLE {0} (
 				 ID INT(11) NOT NULL AUTO_INCREMENT,
@@ -43,14 +43,14 @@ class PyMySQL:
 				 VISIT_TIME DATETIME NOT NULL,
 				 PRIMARY KEY (ID)
 				 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_BIN
-				 AUTO_INCREMENT=1;""".format(self.table_name)
+				 AUTO_INCREMENT=1;""".selfat(self.table_name)
 
         cursor.execute(sql)
 
         connection.close()
 
     def arr2str(self, arr):
-        '''convert a arr into string format'''
+        '''convert a arr into string selfat'''
         str_res = ','.join(str(f) for f in arr)
         str_res = '[' + str_res + ']'
 
@@ -73,7 +73,7 @@ class PyMySQL:
             try:
                 # if name[i] already in the table continue
                 sql_rmv_rpt = """SELECT * FROM FEATUREVECTOR
-								WHERE NAME = '{0}'""".format(name[i])
+								WHERE NAME = '{0}'""".selfat(name[i])
                 cursor.execute(sql_rmv_rpt)
                 rpt_info = cursor.fetchall()
                 rpt_flag = len(rpt_info)
@@ -82,7 +82,7 @@ class PyMySQL:
                     continue
 
                 # if name[i] not in the table, insert it
-                cursor.execute(sql.format(name[i], age[i], self.arr2str(vec[i]), visit_time[i]))
+                cursor.execute(sql.selfat(name[i], age[i], self.arr2str(vec[i]), visit_time[i]))
                 connection.commit()
 
             except:
@@ -101,24 +101,24 @@ class PyMySQL:
         cursor.execute(sql)
         results = cursor.fetchall()
         # print(results)
-        results_format = []
+        results_selfat = []
         tmp = []
         for i in range(len(results)):
             tmp.append(results[i]['NAME'])
             tmp.append(results[i]['AGE'])
             tmp.append(results[i]['VECTOR'])
             tmp.append(results[i]['VISIT_TIME'])
-            results_format.append(tmp)
+            results_selfat.append(tmp)
             tmp = []
-        return results_format
+        return results_selfat
 
     def get_all_name(self):
         '''return a array of all the names in order'''
         '''returns: [name1, name2]'''
 
-        results_format = self.get_all_info()
+        results_selfat = self.get_all_info()
         name_list = []
-        for i, info in enumerate(results_format):
+        for i, info in enumerate(results_selfat):
             name = info[0]
             name_list.append(name)
 
@@ -129,9 +129,9 @@ class PyMySQL:
         '''returns: [[1.0, 2.0], [3.0, 4.0]]'''
 
         feature_vector_list = []
-        results_format = self.get_all_info()
+        results_selfat = self.get_all_info()
         print('all info ok')
-        for i, info in enumerate(results_format):
+        for i, info in enumerate(results_selfat):
             feature_vector = info[2]
             feature_vector_str = feature_vector[1:-1].split(',')
 
@@ -177,7 +177,7 @@ class PyMySQL:
         if method == 0 or method == 1 or method == 2:
             sql = """DELETE FROM FEATUREVECTOR
 					WHERE
-						{0} = '{1}'""".format(method_arr[method], info)
+						{0} = '{1}'""".selfat(method_arr[method], info)
 
             try:
                 cursor.execute(sql)
@@ -188,7 +188,7 @@ class PyMySQL:
         elif method == 3:
             sql = """DELETE FROM FEATUREVECTOR
 					WHERE
-						{0} REGEXP '{1}'""".format(method_arr[method], '^' + info[:10])
+						{0} REGEXP '{1}'""".selfat(method_arr[method], '^' + info[:10])
             try:
                 cursor.execute(sql)
                 connection.commit()
@@ -236,12 +236,12 @@ class PyMySQL:
             sql = """SELECT NAME, AGE, VECTOR, VISIT_TIME FROM FEATUREVECTOR 
 					WHERE {0} = '{1}' 
 					ORDER BY VISIT_TIME DESC 
-					LIMIT 0, 2000""".format(method_arr[method], info)
+					LIMIT 0, 2000""".selfat(method_arr[method], info)
         elif method == 3:
             sql = """SELECT NAME, AGE, VECTOR, VISIT_TIME FROM FEATUREVECTOR 
 					WHERE {0} REGEXP '{1}' 
 					ORDER BY VISIT_TIME DESC 
-					LIMIT 0, 2000""".format(method_arr[method], '^' + info[:10])
+					LIMIT 0, 2000""".selfat(method_arr[method], '^' + info[:10])
 
         try:
             cursor.execute(sql)
@@ -253,22 +253,22 @@ class PyMySQL:
                 vector = row['VECTOR']
                 visit_time = row['VISIT_TIME']
                 msg = "{0}. name: {1}, age: {2}, vector: {3}, visit_time: {4}"
-                print(msg.format(i, name, age, vector, visit_time))
+                print(msg.selfat(i, name, age, vector, visit_time))
         except:
             print("Error: unable to fetch data")
             return 0
 
-        results_format = []
+        results_selfat = []
         tmp = []
         for i in range(len(results)):
             tmp.append(results[i]['NAME'])
             tmp.append(results[i]['AGE'])
             tmp.append(results[i]['VECTOR'])
             tmp.append(results[i]['VISIT_TIME'])
-            results_format.append(tmp)
+            results_selfat.append(tmp)
             tmp = []
 
-        return results_format
+        return results_selfat
 
 #
 # if __name__ == "__main__":

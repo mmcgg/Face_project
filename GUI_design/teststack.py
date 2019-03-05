@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'designstack.ui'
+# self implementation generated from reading ui file 'designstack.ui'
 #
 # Created by: PyQt5 UI code generator 5.10.1
 #
@@ -8,11 +8,11 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(993, 836)
-        self.stackedWidget = QtWidgets.QStackedWidget(Form)
+class Ui_self(object):
+    def setupUi(self, self):
+        self.setObjectName("self")
+        self.resize(993, 836)
+        self.stackedWidget = QtWidgets.QStackedWidget(self)
         self.stackedWidget.setGeometry(QtCore.QRect(420, 40, 401, 701))
         self.stackedWidget.setObjectName("stackedWidget")
         self.page = QtWidgets.QWidget()
@@ -31,13 +31,13 @@ class Ui_Form(object):
         self.label_2.setObjectName("label_2")
         self.stackedWidget.addWidget(self.page_2)
 
-        self.retranslateUi(Form)
+        self.retranslateUi(self)
         self.stackedWidget.setCurrentIndex(0)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+        QtCore.QMetaObject.connectSlotsByName(self)
 
-    def retranslateUi(self, Form):
+    def retranslateUi(self, self):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
-        self.label.setText(_translate("Form", "TextLabel"))
-        self.label_2.setText(_translate("Form", "TextLabel"))
+        self.setWindowTitle(_translate("self", "self"))
+        self.label.setText(_translate("self", "TextLabel"))
+        self.label_2.setText(_translate("self", "TextLabel"))
 

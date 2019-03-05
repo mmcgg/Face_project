@@ -28,7 +28,7 @@ def insert(name, age, vec, visit_time):
         try:
             # if name[i] already in the table continue
             sql_rmv_rpt = """SELECT * FROM FEATUREVECTOR
-                             WHERE NAME = '{0}'""".format(name[i])
+                             WHERE NAME = '{0}'""".selfat(name[i])
             cursor.execute(sql_rmv_rpt)
             rpt_info = cursor.fetchall()
             rpt_flag = len(rpt_info)
@@ -37,7 +37,7 @@ def insert(name, age, vec, visit_time):
                 continue
 
             # if name[i] not in the table, insert it
-            cursor.execute(sql.format(name[i], age[i], arr2str(vec[i]), visit_time[i]))
+            cursor.execute(sql.selfat(name[i], age[i], arr2str(vec[i]), visit_time[i]))
             connection.commit()
         except:
             connection.rollback()

@@ -104,7 +104,7 @@ class Mainw(object):
         flag, self.image= self.cap.read()
         show = cv2.resize(self.image, (800,600))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
-        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
+        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.selfat_RGB888)
         self.CameraLabel.setPixmap(QtGui.QPixmap.fromImage(showImage))
 
     # 打开相机操作
