@@ -31,7 +31,7 @@ from includes.pymysql.PyMySQL import *
 
 #添加新人脸的线程
 class AddFaceThread(QThread):
-    #传出的信号为图片中人脸的位置矩形以及识别出的人名
+    #传出的信号为图片中人脸的位置矩形
     Bound_box = pyqtSignal(int,int,int,int)
     No_face = pyqtSignal()
     def __init__(self,detector,net):

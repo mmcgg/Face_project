@@ -7,7 +7,7 @@ from connect import *
 def export(abst_path):
     '''export the sql file to a txt file'''
 
-    connection = connect('localhost', 'root', 'getluo', 'TESTDB')
+    connection = connect('localhost', 'root', 'Asd980517', 'WEININGFACE')
     cursor = connection.cursor()
 
     sql = """SELECT * INTO OUTFILE '/home/txtfile/FEATUREVECTOR.txt'

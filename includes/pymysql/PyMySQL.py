@@ -101,16 +101,16 @@ class PyMySQL:
         cursor.execute(sql)
         results = cursor.fetchall()
         # print(results)
-        results_selfat = []
+        results_format = []
         tmp = []
         for i in range(len(results)):
             tmp.append(results[i]['NAME'])
             tmp.append(results[i]['AGE'])
             tmp.append(results[i]['VECTOR'])
             tmp.append(results[i]['VISIT_TIME'])
-            results_selfat.append(tmp)
+            results_format.append(tmp)
             tmp = []
-        return results_selfat
+        return results_format
 
     def get_all_name(self):
         '''return a array of all the names in order'''
@@ -123,6 +123,19 @@ class PyMySQL:
             name_list.append(name)
 
         return name_list
+
+    def get_all_time(self):
+        '''
+        return a array of all the datetime in order
+        :return:
+        '''
+        results_format = self.get_all_info()
+        datetime_list = []
+        for i,info in enumerate(results_format):
+            date_time = info[3]
+            datetime_list.append(date_time)
+
+        return datetime_list
 
     def get_all_vector(self):
         '''return a array of all the featurevector array in order'''

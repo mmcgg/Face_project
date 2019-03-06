@@ -56,7 +56,7 @@ from includes.pymysql.PyMySQL import *
 from Widgets.DBWidge import DBWidge
 warnings.filterwarnings('ignore')
 
-class Ui_MainWindow(QWidget):
+class Ui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(Ui_MainWindow, self).__init__(parent)
 
@@ -67,20 +67,20 @@ class Ui_MainWindow(QWidget):
         self.dbWidge.setHidden(True)
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         #相机区域
+
         #人脸识别与记录线程
         self.detector = MTCNN()
         self.FaceThread = DetectionThread(self.detector,net)
         #添加新人脸的线程
         self.AddFaceThread = AddFaceThread(self.detector,net)
+        #定时器
         self.timer_camera =   QTimer()
         self.timer_clear_label = QTimer()
+        self.timer_dynamic_recog = QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0    #Camera used
-        self.resize(1022, 670)
-
         self.set_ui()
         self.slot_init()
-
         self.__flag_work = 0
         self.x =0
         self.recognition_flag=False
@@ -198,7 +198,7 @@ class Ui_MainWindow(QWidget):
     def initMenu(self):
         self._contextMenu = QMenu(self)
         self.ac_open_cama = self._contextMenu.addAction('打开相机', self.CameraOperation)
-        self.ac_detection = self._contextMenu.addAction('一键签到', self.RecognitionOn)
+        self.ac_detection = self._contextMenu.addAction('一键签到', self.Checkin)
         self.ac_Addface = self._contextMenu.addAction('添加新人脸',self.AddFace)
         self.ac_DynamicRecog = self._contextMenu.addAction('开启动态识别',self.DynamicRecogOn)
         self.ac_dbManager = self._contextMenu.addAction('数据库操作',self.openDBmanager)
@@ -215,6 +215,7 @@ class Ui_MainWindow(QWidget):
 
         self.timer_camera.timeout.connect(self.show_camera)
         self.timer_clear_label.timeout.connect(self.del_instant_label)
+        self.timer_dynamic_recog.timeout.connect(self.Checkin)
         #人脸识别算法完成后在右边的tab widget 中显示
         self.FaceThread.Bound_Name.connect(self.ShowInTab)
 
@@ -268,13 +269,12 @@ class Ui_MainWindow(QWidget):
             msg = QtWidgets.QMessageBox.warning(self, u"warning", u"没有检测到摄像头", buttons=QtWidgets.QMessageBox.Ok,
                                                 defaultButton=QtWidgets.QMessageBox.Ok)
         else:
-            if self.timer_dynamic.isActive() == False:
-                self.timer_dynamic.start(300)
+            if self.timer_dynamic_recog.isActive() == False:
+                self.timer_dynamic_recog.start(400)
                 self.ac_DynamicRecog.setText('关闭动态识别')
             else:
-                self.timer_dynamic.stop()
+                self.timer_dynamic_recog.stop()
                 self.ac_DynamicRecog.setText('开启动态识别')
-
 
     def CameraOperation(self):
         if self.timer_camera.isActive() == False:
@@ -289,7 +289,7 @@ class Ui_MainWindow(QWidget):
         else:
             self.timer_camera.stop()
             self.cap.release()
-            self.MainCameraLabel.clear()
+            self.camera_label.clear()
             self.ac_open_cama.setText('打开相机')
     #相机显示
     def show_camera(self):
@@ -302,7 +302,7 @@ class Ui_MainWindow(QWidget):
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0],QImage.Format_RGB888 )
         self.camera_label.setPixmap(QtGui.QPixmap.fromImage(showImage))
 
-    def RecognitionOn(self):
+    def Checkin(self):
         if self.timer_camera.isActive()==False:
             msg = QtWidgets.QMessageBox.warning(self, u"warning", u"没有检测到摄像头", buttons=QtWidgets.QMessageBox.Ok,
                                                 defaultButton=QtWidgets.QMessageBox.Ok)
@@ -376,8 +376,6 @@ class Ui_MainWindow(QWidget):
             text_list.clear()
 
 
-    def DelInstantFace(self):
-        self.InstantFaceLabel.clear()
 
 app = QtWidgets.QApplication(sys.argv)
 ui = Ui_MainWindow()
