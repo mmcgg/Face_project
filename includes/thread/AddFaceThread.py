@@ -58,7 +58,7 @@ class AddFaceThread(QThread):
 
         #如果没有检测出人脸，发出一个信号并且提前停止线程
         if len(result) == 0 :
-            print('No face')
+            self.No_face.emit()
             return
 
         aligment_imgs = []
@@ -68,7 +68,10 @@ class AddFaceThread(QThread):
 
         bouding_boxes = face['box']
         keypoints = face['keypoints']
-
+        for bound in bounding_box:
+            if bound<=0 or bound>=self.img.shape[0]-1 or bound>=self.img.shape[1]-1:
+                self.No_face.emit()
+                return
         faces = self.img[bouding_boxes[1]:bouding_boxes[1] + bouding_boxes[3],
                     bouding_boxes[0]:bouding_boxes[0] + bouding_boxes[2]]
 

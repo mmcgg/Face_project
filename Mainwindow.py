@@ -77,6 +77,7 @@ class Ui_MainWindow(QMainWindow):
         self.timer_camera =   QTimer()
         self.timer_clear_label = QTimer()
         self.timer_dynamic_recog = QTimer()
+        self.timer_long_name = QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0    #Camera used
         self.set_ui()
@@ -93,18 +94,19 @@ class Ui_MainWindow(QMainWindow):
         self.facelabel_list = []
         self.textlabel_list = []
         self.name_list = []
+        self.long_name_list = []
         self.setLabelList(self.facelabel_list,self.textlabel_list)
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
         self.timer_clear_label.start(5000)
-
-
+        self.timer_long_name.start(60000)
 
     def set_ui(self):
-        self.resize(1114, 861)
+        self.resize(1132,900)
 
         self.textBrowser = QtWidgets.QTextBrowser(self)
         self.textBrowser.setGeometry(QtCore.QRect(10, 650, 661, 151))
         self.textBrowser.setObjectName("textBrowser")
+        self.textBrowser.setFont(QFont("Timers",14))
         self.tabWidget = QtWidgets.QTabWidget(self)
         self.tabWidget.setGeometry(QtCore.QRect(670, 40, 371, 761))
         self.tabWidget.setObjectName("tabWidget")
@@ -147,6 +149,7 @@ class Ui_MainWindow(QMainWindow):
         self.lcdNumber = QtWidgets.QLCDNumber(self)
         self.lcdNumber.setGeometry(QtCore.QRect(470, 40, 201, 41))
         self.lcdNumber.setObjectName("lcdNumber")
+        self.lcdNumber.setDigitCount(2)
         self.camera_label = QtWidgets.QLabel(self)
         self.camera_label.setGeometry(QtCore.QRect(10, 90, 661, 551))
         self.camera_label.setObjectName("camera_labe")
@@ -162,6 +165,7 @@ class Ui_MainWindow(QMainWindow):
         self.horizontalLayout.addWidget(self.pushButton_4)
         self.pushButton_3 = QtWidgets.QPushButton(self.horizontalLayoutWidget)
         self.pushButton_3.setObjectName("pushButton_3")
+        self.pushButton_3.setText("手动签到")
         self.horizontalLayout.addWidget(self.pushButton_3)
         self.pushButton_2 = QtWidgets.QPushButton(self.horizontalLayoutWidget)
         self.pushButton_2.setObjectName("pushButton_2")
@@ -182,6 +186,8 @@ class Ui_MainWindow(QMainWindow):
         text_list.append(self.infoLabel2)
         text_list.append(self.infoLabel3)
         text_list.append(self.infoLabel4)
+        for text_label in text_list:
+            text_label.setFont(QFont("Timer",12))
 
 
 
@@ -202,7 +208,7 @@ class Ui_MainWindow(QMainWindow):
         self.ac_Addface = self._contextMenu.addAction('添加新人脸',self.AddFace)
         self.ac_DynamicRecog = self._contextMenu.addAction('开启动态识别',self.DynamicRecogOn)
         self.ac_dbManager = self._contextMenu.addAction('数据库操作',self.openDBmanager)
-
+        self.ac_delete_text = self._contextMenu.addAction('删除信息显示',self.clear_all_text)
     def initAnimation(self):
         # 按钮动画
         self._animation = QPropertyAnimation(
@@ -216,10 +222,20 @@ class Ui_MainWindow(QMainWindow):
         self.timer_camera.timeout.connect(self.show_camera)
         self.timer_clear_label.timeout.connect(self.del_instant_label)
         self.timer_dynamic_recog.timeout.connect(self.Checkin)
+        self.timer_long_name.timeout.connect(self.del_long_name)
         #人脸识别算法完成后在右边的tab widget 中显示
+        self.AddFaceThread.No_face.connect(self.TextShowNoFace)
         self.FaceThread.Bound_Name.connect(self.ShowInTab)
+        self.FaceThread.Face_Count.connect(self.ShowInLCD)
+        self.pushButton.clicked.connect(self.CameraOperation)
+        self.pushButton_3.clicked.connect(self.Checkin)
 
 
+    def ShowInLCD(self,number):
+        self.lcdNumber.display(number)
+
+    def TextShowNoFace(self):
+        self.textBrowser.insertPlainText("未检测到人脸，请重试")
     def openDBmanager(self):
         if self.dbWidge.isHidden():
             self.dbWidge.setHidden(False)
@@ -285,12 +301,17 @@ class Ui_MainWindow(QMainWindow):
         
             else:
                 self.timer_camera.start(50)
-                self.ac_open_cama.setText('关闭相机')
+                self.ac_open_cama.setText('关闭摄像头')
+                self.pushButton.setText('关闭摄像头')
         else:
+            if self.timer_dynamic_recog.isActive():
+                self.timer_dynamic_recog.stop()
+                self.ac_DynamicRecog.setText('开启动态识别')
             self.timer_camera.stop()
             self.cap.release()
             self.camera_label.clear()
-            self.ac_open_cama.setText('打开相机')
+            self.ac_open_cama.setText('打开摄像头')
+            self.pushButton.setText('打开摄像头')
     #相机显示
     def show_camera(self):
         flag, self.image= self.cap.read()
@@ -331,23 +352,36 @@ class Ui_MainWindow(QMainWindow):
 
         pix = QPixmap.fromImage(showImage)
         print(self.name_list)
-        if self.check_name(name):
+        if self.check_name(name)==True:
             for i,text_label in enumerate(self.textlabel_list):
                 if not text_label.text():
                     self.facelabel_list[i].setPixmap(pix)
                     tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
+                    tx1 = time.strftime('%Y-%m-%d %H:%M:%S')
                     all_str = '姓名:#' + name + '#\n' + '时间:' + tx
                     text_label.setText(all_str)
                     break
 
-
     def check_name(self,name):
+        if name not in self.long_name_list:
+            if name == 'Unknown':
+                str_1 = '检测到未知人员于' + tx1 + '出现\n'
+                self.textBrowser.insertPlainText(str_1)
+            else:
+                self.long_name_list.append(name)
+                tx1 = time.strftime('%Y-%m-%d %H:%M:%S')
+                str_1 = '检测到#' + name + '#于' + tx1 + '出现\n'
+                self.textBrowser.insertPlainText(str_1)
         if name not in self.name_list:
             self.name_list.append(name)
             return True
 
         else:
             return False
+
+    def del_long_name(self):
+        self.long_name_list.clear()
+
     def closeEvent(self, event):
         ok = QtWidgets.QPushButton()
         cacel = QtWidgets.QPushButton()
@@ -375,7 +409,8 @@ class Ui_MainWindow(QMainWindow):
         for label in text_list:
             text_list.clear()
 
-
+    def clear_all_text(self):
+        self.textBrowser.clear()
 
 app = QtWidgets.QApplication(sys.argv)
 ui = Ui_MainWindow()

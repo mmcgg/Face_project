@@ -33,7 +33,7 @@ class PyMySQL:
         connection = self.connect()
         cursor = connection.cursor()
 
-        cursor.execute("DROP TABLE IF EXISTS {0}".selfat(self.table_name))
+        cursor.execute("DROP TABLE IF EXISTS {0}".format(self.table_name))
 
         sql = """CREATE TABLE {0} (
 				 ID INT(11) NOT NULL AUTO_INCREMENT,
@@ -43,7 +43,7 @@ class PyMySQL:
 				 VISIT_TIME DATETIME NOT NULL,
 				 PRIMARY KEY (ID)
 				 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_BIN
-				 AUTO_INCREMENT=1;""".selfat(self.table_name)
+				 AUTO_INCREMENT=1;""".format(self.table_name)
 
         cursor.execute(sql)
 
@@ -73,7 +73,7 @@ class PyMySQL:
             try:
                 # if name[i] already in the table continue
                 sql_rmv_rpt = """SELECT * FROM FEATUREVECTOR
-								WHERE NAME = '{0}'""".selfat(name[i])
+								WHERE NAME = '{0}'""".format(name[i])
                 cursor.execute(sql_rmv_rpt)
                 rpt_info = cursor.fetchall()
                 rpt_flag = len(rpt_info)
@@ -82,7 +82,7 @@ class PyMySQL:
                     continue
 
                 # if name[i] not in the table, insert it
-                cursor.execute(sql.selfat(name[i], age[i], self.arr2str(vec[i]), visit_time[i]))
+                cursor.execute(sql.format(name[i], age[i], self.arr2str(vec[i]), visit_time[i]))
                 connection.commit()
 
             except:
@@ -143,9 +143,9 @@ class PyMySQL:
 
         feature_vector_list = []
         results_selfat = self.get_all_info()
-        print('all info ok')
         for i, info in enumerate(results_selfat):
             feature_vector = info[2]
+            print(feature_vector)
             feature_vector_str = feature_vector[1:-1].split(',')
 
             feature_vector_float = []
@@ -266,7 +266,7 @@ class PyMySQL:
                 vector = row['VECTOR']
                 visit_time = row['VISIT_TIME']
                 msg = "{0}. name: {1}, age: {2}, vector: {3}, visit_time: {4}"
-                print(msg.selfat(i, name, age, vector, visit_time))
+                print(msg.format(i, name, age, vector, visit_time))
         except:
             print("Error: unable to fetch data")
             return 0
@@ -283,18 +283,16 @@ class PyMySQL:
 
         return results_selfat
 
-#
-# if __name__ == "__main__":
-#     py = PyMySQL('localhost', 'root', 'getluo', 'TESTDB')
-#
-#     py.create_table('FEATUREVECTOR')
-#     float_num = -1.3232
-#     float_num_list = []
-#     for i in range(512):
-#         float_num_list.append(float_num)
-#     print(1)
-#     py.insert(['e', 'f'], [20, 20], [float_num_list, float_num_list.append('0.12/n')],
-#               ['2018-07-23 11:10:11', '2018-07-28 09:11:11'])
-#     print(py.get_all_name())
-#     print(py.get_all_vector())
+
+if __name__ == "__main__":
+    py = PyMySQL('localhost','root','Asd980517','WEININGFACE')
+
+    py.create_table('FEATUREVECTOR')
+    float_num = -1.3232
+    float_num_list = []
+    for i in range(512):
+        float_num_list.append(float_num)
+    print(1)
+    print(py.get_all_name())
+    print(py.get_all_vector())
 

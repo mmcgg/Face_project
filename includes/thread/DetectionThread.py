@@ -33,6 +33,7 @@ class DetectionThread(QThread):
     Bound_Name = pyqtSignal(int,int,int,int,str)
     Dynamic_Bound_Name = pyqtSignal(int,int,int,int,str)
     Dynamic_Show_Time = pyqtSignal(int)
+    Face_Count = pyqtSignal(int)
     def __init__(self,detector,net):
         super(DetectionThread, self).__init__()
         #导入识别和检测模型
@@ -40,7 +41,6 @@ class DetectionThread(QThread):
         self.detector = detector
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         self.thres = 0.5 #判断人脸相似度的阈值
-        self.MWindow = QWidget()
         self.show_time = 100 #动态显示人脸时间
     def SetImg(self,img,method = 0):
         self.img = img
@@ -56,14 +56,19 @@ class DetectionThread(QThread):
 
         #如果没有检测出人脸，发出一个信号并且提前停止线程
         if len(result) == 0 :
-            print('No face')
             return
+
+        self.Face_Count.emit(len(result))
         aligment_imgs = []
         originfaces = []
         # 检测，标定landmark
         for face in result:
             temp_landmarks = []
             bouding_boxes = face['box']
+            for axis in bouding_boxes:
+                if axis<=0 or axis>=self.img.shape[0]-1 or axis>=self.img.shape[1]-1:
+                    return
+
             keypoints = face['keypoints']
 
             faces = self.img[bouding_boxes[1]:bouding_boxes[1] + bouding_boxes[3],
@@ -101,13 +106,9 @@ class DetectionThread(QThread):
         aligment_imgs = np.reshape(aligment_imgs, (length, 3, 112, 96))
         output_imgs_features = self.get_imgs_features(aligment_imgs)
         cos_distances_list = []
-        # print('featrure ok')
         #和数据库内的每一个向量进行计算对比
         imgs_features = self.db.get_all_vector()
-        # print('\n',imgs_features)
-        # print('ready to cal cos')
         NameIndb = self.db.get_all_name()
-        # print(NameIndb)
         NameList = []
         for img_feature in output_imgs_features:
             cos_distance_list = [self.cal_cosdistance(img_feature, test_img_feature) for test_img_feature in
@@ -123,7 +124,6 @@ class DetectionThread(QThread):
             else:
                 NameList.append(NameIndb[sub_cos_distances_list.index(max(sub_cos_distances_list))])
 
-        print('Name list: ',NameList)
         #method = 0: 签到
         #method = 1: 动态识别（画人脸）
         if self.method ==0:
@@ -153,9 +153,7 @@ class DetectionThread(QThread):
         return cosdistance
 
     def get_imgs_features(self, imgs_alignment):
-        print('getting feature')
         input_images = Variable(torch.from_numpy(imgs_alignment).float(), volatile=True)
-        print('ok')
         output_features = self.net(input_images)
         output_features = output_features.data.numpy()
         return output_features
@@ -168,7 +166,6 @@ class DetectionThread(QThread):
 
         s = np.array(src_pts).astype(np.float32)
         r = np.array(ref_pts).astype(np.float32)
-        print('transfering')
         tfm = get_similarity_transself_for_cv2(s, r)
         face_img = cv2.warpAffine(src_img, tfm, crop_size)
         return face_img

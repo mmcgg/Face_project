@@ -17,20 +17,50 @@ class TableWidge(QWidget):
         self.resize(500,300)
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         self.people_size = self.db.get_all_info().__len__()
-        self.model = QStandardItemModel(2,self.people_size)
+        self.model = QStandardItemModel(self.people_size,2)
         self.model.setHorizontalHeaderLabels(['姓名','最近到访时间'])
 
+        self.initMenu()
+        self.initAnimation()
         for col in range(self.people_size):
             item = QStandardItem(self.db.get_all_name()[col])
-            self.model.setItem(0,col,item)
+            self.model.setItem(col,0,item)
             item = QStandardItem(str(self.db.get_all_time()[col]))
-            self.model.setItem(1,col,item)
+            self.model.setItem(col,1,item)
 
         self.tableView = QTableView()
         self.tableView.setModel(self.model)
         layout = QVBoxLayout()
         layout.addWidget(self.tableView)
         self.setLayout(layout)
+
+    def contextMenuEvent(self, event):
+        pos = event.globalPos()
+        size = self._contextMenu.sizeHint()
+        x, y, w, h = pos.x(), pos.y(), size.width(), size.height()
+        self._animation.stop()
+        self._animation.setStartValue(QRect(x, y, 0, 0))
+        self._animation.setEndValue(QRect(x, y, w, h))
+        self._animation.start()
+        self._contextMenu.exec_(event.globalPos())
+
+    def initMenu(self):
+        self._contextMenu = QMenu(self)
+        self.ac_delete_all  = self._contextMenu.addAction('删除所有数据',self.delete_all)
+    def initAnimation(self):
+        # 按钮动画
+        self._animation = QPropertyAnimation(
+            self._contextMenu, b'geometry', self,
+            easingCurve=QEasingCurve.Linear, duration=300)
+        # easingCurve 修改该变量可以实现不同的效果
+
+
+    def delete_info(self):
+        pass
+
+    def delete_all(self):
+        self.db.delete_all()
+        self.model.clear()
 
 
 class DBWidge(QWidget):
@@ -48,7 +78,7 @@ class DBWidge(QWidget):
         self.connectButton = QPushButton('连接数据库',self)
         self.connectButton.setGeometry(100,100,100,50)
         self.checkButton = QPushButton('查看数据',self)
-        self.checkButton.setGeometry(300,300,100,50)
+        self.checkButton.setGeometry(100,200,100,50)
 
     def initSlot(self):
         self.connectButton.clicked.connect(self.connectDB)
