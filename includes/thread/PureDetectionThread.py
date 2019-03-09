@@ -39,13 +39,10 @@ class DetectionThread(QThread):
         #导入识别和检测模型
         self.net = net
         self.detector = detector
-        self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
-        self.thres = 0.5 #判断人脸相似度的阈值
-        self.show_time = 100 #动态显示人脸时间
-    def SetImg(self,img,method = 0):
+    def SetImg(self,img):
         self.img = img
         self.method = method
-        #传入图片后执行run方法
+
         self.start()
     def SetThresHold(self,thres):
         self.thres = thres
@@ -59,8 +56,6 @@ class DetectionThread(QThread):
         if len(result) == 0 :
             return
 
-        aligment_imgs = []
-        originfaces = []
         # 检测，标定landmark
         for face in result:
             temp_landmarks = []
@@ -69,13 +64,6 @@ class DetectionThread(QThread):
                 if axis<=0 or axis>=self.img.shape[0]-1 or axis>=self.img.shape[1]-1:
                     return
 
-            if bouding_boxes[0] + bouding_boxes[2] <= 0 or bouding_boxes[1] + bouding_boxes[3] <= 0:
-                self.No_face.emit()
-                return
-
-            if bouding_boxes[0] + bouding_boxes[2] >= self.img.shape[1] - 1 or bouding_boxes[1] + bouding_boxes[3] >= \
-                    self.img.shape[0] - 1:
-                return
             keypoints = face['keypoints']
 
             faces = self.img[bouding_boxes[1]:bouding_boxes[1] + bouding_boxes[3],

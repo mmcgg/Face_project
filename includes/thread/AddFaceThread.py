@@ -68,10 +68,12 @@ class AddFaceThread(QThread):
 
         bouding_boxes = face['box']
         keypoints = face['keypoints']
-        for bound in bounding_box:
-            if bound<=0 or bound>=self.img.shape[0]-1 or bound>=self.img.shape[1]-1:
-                self.No_face.emit()
-                return
+        if bouding_boxes[0]+bouding_boxes[2]<=0 or bouding_boxes[1]+bouding_boxes[3]<=0:
+            self.No_face.emit()
+            return
+
+        if bouding_boxes[0]+bouding_boxes[2]>=self.img.shape[1]-1 or bouding_boxes[1]+bouding_boxes[3]>=self.img.shape[0] - 1:
+            return
         faces = self.img[bouding_boxes[1]:bouding_boxes[1] + bouding_boxes[3],
                     bouding_boxes[0]:bouding_boxes[0] + bouding_boxes[2]]
 
@@ -113,7 +115,8 @@ class AddFaceThread(QThread):
         name, ok = QInputDialog.getText(self.inputWidget, "Get name", "Your name:", QLineEdit.Normal, "")
         current_time = time.strftime('%Y-%m-%d\n%H:%M:%S')
         if ok and name!='':
-            self.db.insert([name],[11],[output_imgs_features],[current_time])
+            self.db.insert([name],[20],[output_imgs_features],[current_time])
+            print('insert ok')
         # print('insert ok')
 
 

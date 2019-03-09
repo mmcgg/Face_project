@@ -5,6 +5,7 @@ from PyQt5 import QtCore, QtGui,QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtSql import *
 import qdarkstyle
 
 #数据库操作窗口
@@ -19,7 +20,6 @@ class TableWidge(QWidget):
         self.people_size = self.db.get_all_info().__len__()
         self.model = QStandardItemModel(self.people_size,2)
         self.model.setHorizontalHeaderLabels(['姓名','最近到访时间'])
-
         self.initMenu()
         self.initAnimation()
         for col in range(self.people_size):
@@ -30,6 +30,7 @@ class TableWidge(QWidget):
 
         self.tableView = QTableView()
         self.tableView.setModel(self.model)
+        self.tableView.resizeColumnsToContents()
         layout = QVBoxLayout()
         layout.addWidget(self.tableView)
         self.setLayout(layout)
@@ -55,8 +56,6 @@ class TableWidge(QWidget):
         # easingCurve 修改该变量可以实现不同的效果
 
 
-    def delete_info(self):
-        pass
 
     def delete_all(self):
         self.db.delete_all()
@@ -78,7 +77,7 @@ class DBWidge(QWidget):
         self.connectButton = QPushButton('连接数据库',self)
         self.connectButton.setGeometry(100,100,100,50)
         self.checkButton = QPushButton('查看数据',self)
-        self.checkButton.setGeometry(100,200,100,50)
+        self.checkButton.setGeometry(100,150,100,50)
 
     def initSlot(self):
         self.connectButton.clicked.connect(self.connectDB)

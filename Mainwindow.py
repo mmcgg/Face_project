@@ -80,11 +80,11 @@ class Ui_MainWindow(QMainWindow):
         self.timer_long_name = QTimer()
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0    #Camera used
+        self.dynamic_draw_flag = False
         self.set_ui()
         self.slot_init()
         self.__flag_work = 0
-        self.x =0
-        self.recognition_flag=False
+
 
         #初始化
         self.initMenu()
@@ -162,6 +162,7 @@ class Ui_MainWindow(QMainWindow):
 
         self.pushButton_4 = QtWidgets.QPushButton(self.horizontalLayoutWidget)
         self.pushButton_4.setObjectName("pushButton_4")
+        self.pushButton_4.setText("人脸显示")
         self.horizontalLayout.addWidget(self.pushButton_4)
         self.pushButton_3 = QtWidgets.QPushButton(self.horizontalLayoutWidget)
         self.pushButton_3.setObjectName("pushButton_3")
@@ -229,7 +230,10 @@ class Ui_MainWindow(QMainWindow):
         self.FaceThread.Face_Count.connect(self.ShowInLCD)
         self.pushButton.clicked.connect(self.CameraOperation)
         self.pushButton_3.clicked.connect(self.Checkin)
+        self.pushButton_4.clicked.connect(self.OpenDraw)
 
+    def OpenDraw(self):
+        self.dynamic_draw_flag = 1 - self.dynamic_draw_flag
 
     def ShowInLCD(self,number):
         self.lcdNumber.display(number)
@@ -266,8 +270,6 @@ class Ui_MainWindow(QMainWindow):
 
 
 
-    def setDynamicShowTime(self,t):
-        self.timer_instant.start(t)
 
 
     def AddFace(self):
@@ -315,13 +317,28 @@ class Ui_MainWindow(QMainWindow):
     #相机显示
     def show_camera(self):
         flag, self.image= self.cap.read()
-        if self.recognition_flag==True:
-            self.FaceThread.SetImg(self.image,method=1)
+        if self.dynamic_draw_flag:
+            self.draw_face_rec()
+
 
         show = cv2.resize(self.image, (800, 600))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0],QImage.Format_RGB888 )
         self.camera_label.setPixmap(QtGui.QPixmap.fromImage(showImage))
+
+    def draw_face_rec(self):
+        result = self.detector.detect_faces(self.image)
+        if len(result) == 0 :
+            return
+
+        for face in result:
+            bouding_boxes = face['box']
+            for axis in bouding_boxes:
+                if axis<=0 or axis>=self.image.shape[0]-1 or axis>=self.image.shape[1]-1:
+                    return
+
+            cv2.rectangle(self.image,(bouding_boxes[0],bouding_boxes[1]),(bouding_boxes[0]+bouding_boxes[2],bouding_boxes[1]+bouding_boxes[3]),(255,0,0),2)
+
 
     def Checkin(self):
         if self.timer_camera.isActive()==False:
@@ -357,7 +374,6 @@ class Ui_MainWindow(QMainWindow):
                 if not text_label.text():
                     self.facelabel_list[i].setPixmap(pix)
                     tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
-                    tx1 = time.strftime('%Y-%m-%d %H:%M:%S')
                     all_str = '姓名:#' + name + '#\n' + '时间:' + tx
                     text_label.setText(all_str)
                     break
@@ -365,6 +381,7 @@ class Ui_MainWindow(QMainWindow):
     def check_name(self,name):
         if name not in self.long_name_list:
             if name == 'Unknown':
+                tx1 = time.strftime('%Y-%m-%d %H:%M:%S')
                 str_1 = '检测到未知人员于' + tx1 + '出现\n'
                 self.textBrowser.insertPlainText(str_1)
             else:
