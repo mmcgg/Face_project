@@ -81,21 +81,20 @@ class Ui_MainWindow(QMainWindow):
         self.cap = cv2.VideoCapture()
         self.CAM_NUM = 0    #Camera used
         self.dynamic_draw_flag = False
-        self.set_ui()
-        self.slot_init()
-        self.__flag_work = 0
 
 
         #初始化
-        self.initMenu()
-        self.initAnimation()
         # self.setBackGround()
 
         self.facelabel_list = []
         self.textlabel_list = []
         self.name_list = []
         self.long_name_list = []
-        self.setLabelList(self.facelabel_list,self.textlabel_list)
+        self.set_ui()
+        self.slot_init()
+        self.__flag_work = 0
+        self.initMenu()
+        self.initAnimation()
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
         self.timer_clear_label.start(5000)
         self.timer_long_name.start(60000)
@@ -118,30 +117,11 @@ class Ui_MainWindow(QMainWindow):
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
-        self.faceLabel1 = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.faceLabel1.setObjectName("faceLabel1")
-        self.gridLayout.addWidget(self.faceLabel1, 0, 0, 1, 1)
-        self.infoLabel3 = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.infoLabel3.setObjectName("infoLabel3")
-        self.gridLayout.addWidget(self.infoLabel3, 2, 1, 1, 1)
-        self.infoLabel1 = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.infoLabel1.setObjectName("infoLabel1")
-        self.gridLayout.addWidget(self.infoLabel1, 0, 1, 1, 1)
-        self.faceLabel3 = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.faceLabel3.setObjectName("faceLabel3")
-        self.gridLayout.addWidget(self.faceLabel3, 2, 0, 1, 1)
-        self.infoLabel2 = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.infoLabel2.setObjectName("infoLabel2")
-        self.gridLayout.addWidget(self.infoLabel2, 1, 1, 1, 1)
-        self.faceLabel2 = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.faceLabel2.setObjectName("faceLabel2")
-        self.gridLayout.addWidget(self.faceLabel2, 1, 0, 1, 1)
-        self.faceLabel4 = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.faceLabel4.setObjectName("faceLabel4")
-        self.gridLayout.addWidget(self.faceLabel4, 3, 0, 1, 1)
-        self.infoLabel4 = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.infoLabel4.setObjectName("infoLabel4")
-        self.gridLayout.addWidget(self.infoLabel4, 3, 1, 1, 1)
+
+        self.append_label()
+        self.append_label()
+        self.append_label()
+        self.append_label()
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -152,7 +132,7 @@ class Ui_MainWindow(QMainWindow):
         self.lcdNumber.setDigitCount(2)
         self.camera_label = QtWidgets.QLabel(self)
         self.camera_label.setGeometry(QtCore.QRect(10, 90, 661, 551))
-        self.camera_label.setObjectName("camera_labe")
+        self.camera_label.setObjectName("camera_label")
         self.horizontalLayoutWidget = QtWidgets.QWidget(self)
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 395, 81))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
@@ -177,19 +157,17 @@ class Ui_MainWindow(QMainWindow):
         self.pushButton.setText("开启相机")
         self.horizontalLayout.addWidget(self.pushButton)
 
-    def setLabelList(self,face_list,text_list):
-        face_list.append(self.faceLabel1)
-        face_list.append(self.faceLabel2)
-        face_list.append(self.faceLabel3)
-        face_list.append(self.faceLabel4)
 
-        text_list.append(self.infoLabel1)
-        text_list.append(self.infoLabel2)
-        text_list.append(self.infoLabel3)
-        text_list.append(self.infoLabel4)
-        for text_label in text_list:
-            text_label.setFont(QFont("Timer",12))
 
+
+    def append_label(self):
+        label_num = self.facelabel_list.__len__()
+        temp_text = QLabel(self.gridLayoutWidget)
+        temp_text.setFont(QFont("Timers",12))
+        self.facelabel_list.append(QLabel(self.gridLayoutWidget))
+        self.textlabel_list.append(temp_text)
+        self.gridLayout.addWidget(self.facelabel_list[-1],label_num,0,1,1)
+        self.gridLayout.addWidget(self.textlabel_list[-1],label_num,1,1,1)
 
 
     def contextMenuEvent(self, event):
@@ -229,7 +207,7 @@ class Ui_MainWindow(QMainWindow):
         self.FaceThread.Bound_Name.connect(self.ShowInTab)
         self.FaceThread.Face_Count.connect(self.ShowInLCD)
         self.pushButton.clicked.connect(self.CameraOperation)
-        self.pushButton.clicked.connect(self.clear_all_label)
+        self.pushButton_2.clicked.connect(self.clear_all_label)
         self.pushButton_3.clicked.connect(self.Checkin)
         self.pushButton_4.clicked.connect(self.OpenDraw)
 
@@ -367,6 +345,9 @@ class Ui_MainWindow(QMainWindow):
 
         pix = QPixmap.fromImage(showImage)
         print(self.name_list)
+        if self.textlabel_list.__len__()==0:
+            self.append_label()
+
         if self.check_name(name)==True:
             for i,text_label in enumerate(self.textlabel_list):
                 if not text_label.text():
@@ -375,6 +356,13 @@ class Ui_MainWindow(QMainWindow):
                     all_str = '姓名:#' + name + '#\n' + '时间:' + tx
                     text_label.setText(all_str)
                     break
+
+                if i==self.textlabel_list.__len__()-1 and text_label.text():
+                    self.append_label()
+                    self.facelabel_list[i].setPixmap(pix)
+                    tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
+                    all_str = '姓名:#' + name + '#\n' + '时间:' + tx
+                    self.textlabel_list[i].setText(all_str)
 
     def check_name(self,name):
         if name not in self.long_name_list:
@@ -417,12 +405,9 @@ class Ui_MainWindow(QMainWindow):
                 self.timer_camera.stop()
             event.accept()
 
-    def clear_all_label(self,face_list,text_list):
-        for label in face_list:
-            label.clear()
-
-        for label in text_list:
-            text_list.clear()
+    def clear_all_label(self):
+        self.facelabel_list = []
+        self.textlabel_list = []
 
     def clear_all_text(self):
         self.textBrowser.clear()
