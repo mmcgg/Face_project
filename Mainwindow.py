@@ -56,12 +56,86 @@ from includes.pymysql.PyMySQL import *
 from Widgets.DBWidge import DBWidge
 warnings.filterwarnings('ignore')
 
+def mask_image(show, size=200):
+    """Return a ``QPixmap`` from *imgdata* masked with a smooth circle.
+
+    *imgdata* are the raw image bytes, *imgtype* denotes the image type.
+
+    The returned image will have a size of *size* × *size* pixels.
+
+    """
+    # Load image and convert to 32-bit ARGB (adds an alpha channel):
+    image = QImage(show.data, show.shape[1], show.shape[0],QImage.Format_RGB888)
+    # image.convertToFormat(QImage.Format_RGB888)
+
+    # Crop image to a square:
+    imgsize = min(image.width(), image.height())
+    rect = QRect(
+        (image.width() - imgsize) / 2,
+        (image.height() - imgsize) / 2,
+        imgsize,
+        imgsize,
+    )
+    image = image.copy(rect)
+
+    # Create the output image with the same dimensions and an alpha channel
+    # and make it completely transparent:
+    out_img = QImage(imgsize, imgsize, QImage.Format_ARGB32)
+    out_img.fill(Qt.transparent)
+
+    # Create a texture brush and paint a circle with the original image onto
+    # the output image:
+    brush = QBrush(image)        # Create texture brush
+    painter = QPainter(out_img)  # Paint the output image
+    painter.setBrush(brush)      # Use the image texture brush
+    painter.setPen(Qt.NoPen)     # Don't draw an outline
+    painter.setRenderHint(QPainter.Antialiasing, True)  # Use AA
+    painter.drawEllipse(0, 0, imgsize, imgsize)  # Actually draw the circle
+    painter.end()                # We are done (segfault if you forget this)
+
+    # Convert the image to a pixmap and rescale it.  Take pixel ratio into
+    # account to get a sharp image on retina displays:
+    pr = QWindow().devicePixelRatio()
+    pm = QPixmap.fromImage(out_img)
+    pm.setDevicePixelRatio(pr)
+    size *= pr
+    pm = pm.scaled(size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+    return pm
+
+class Label(QLabel):
+    def __init__(self, *args, antialiasing=True, **kwargs):
+        super(Label, self).__init__(*args, **kwargs)
+        self.Antialiasing = antialiasing
+        self.setMaximumSize(50, 50)
+        self.setMinimumSize(50, 50)
+        self.radius = 25
+
+        self.target = QPixmap(self.size())
+        self.target.fill(Qt.transparent)
+
+        p = QPixmap.fromImage().scaled(
+            50, 50, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+
+        painter = QPainter(self.target)
+        if self.Antialiasing:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.setRenderHint(QPainter.HighQualityAntialiasing, True)
+            painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+
+        path = QPainterPath()
+        path.addRoundedRect(
+            0, 0, self.width(), self.height(), self.radius, self.radius)
+
+        painter.setClipPath(path)
+        painter.drawPixmap(0, 0, p)
+        self.setPixmap(self.target)
+
 class Ui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(Ui_MainWindow, self).__init__(parent)
 
 
-        self.face_num  = 0
         #数据库调用
         self.dbWidge = DBWidge()
         self.dbWidge.setHidden(True)
@@ -100,19 +174,21 @@ class Ui_MainWindow(QMainWindow):
         self.timer_long_name.start(60000)
 
     def set_ui(self):
-        self.resize(1132,900)
+        self.resize(1600,900)
 
         self.textBrowser = QtWidgets.QTextBrowser(self)
         self.textBrowser.setGeometry(QtCore.QRect(10, 650, 661, 151))
         self.textBrowser.setObjectName("textBrowser")
         self.textBrowser.setFont(QFont("Timers",14))
-        self.tabWidget = QtWidgets.QTabWidget(self)
-        self.tabWidget.setGeometry(QtCore.QRect(670, 40, 371, 761))
+        self.tabWidget = QtWidgets.QScrollArea(self)
+        self.tabWidget.setGeometry(QtCore.QRect(670, 40, 500, 800))
         self.tabWidget.setObjectName("tabWidget")
         self.tab = QtWidgets.QWidget()
+        self.tab.setMinimumSize(400,2000)
         self.tab.setObjectName("tab")
+        self.tabWidget.setWidget(self.tab)
         self.gridLayoutWidget = QtWidgets.QWidget(self.tab)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 0, 361, 741))
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 0, 400, 1200))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
@@ -122,10 +198,7 @@ class Ui_MainWindow(QMainWindow):
         self.append_label()
         self.append_label()
         self.append_label()
-        self.tabWidget.addTab(self.tab, "")
-        self.tab_2 = QtWidgets.QWidget()
-        self.tab_2.setObjectName("tab_2")
-        self.tabWidget.addTab(self.tab_2, "")
+
         self.lcdNumber = QtWidgets.QLCDNumber(self)
         self.lcdNumber.setGeometry(QtCore.QRect(470, 40, 201, 41))
         self.lcdNumber.setObjectName("lcdNumber")
@@ -133,6 +206,8 @@ class Ui_MainWindow(QMainWindow):
         self.camera_label = QtWidgets.QLabel(self)
         self.camera_label.setGeometry(QtCore.QRect(10, 90, 661, 551))
         self.camera_label.setObjectName("camera_label")
+
+
         self.horizontalLayoutWidget = QtWidgets.QWidget(self)
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 395, 81))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
@@ -342,15 +417,16 @@ class Ui_MainWindow(QMainWindow):
         show = cv2.resize(face, (200,200))
         show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
         showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
-
-        pix = QPixmap.fromImage(showImage)
+        pix = mask_image(show)
         print(self.name_list)
         if self.textlabel_list.__len__()==0:
+            print('no_list')
             self.append_label()
 
         if self.check_name(name)==True:
             for i,text_label in enumerate(self.textlabel_list):
                 if not text_label.text():
+                    print('doing')
                     self.facelabel_list[i].setPixmap(pix)
                     tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
                     all_str = '姓名:#' + name + '#\n' + '时间:' + tx
@@ -359,10 +435,11 @@ class Ui_MainWindow(QMainWindow):
 
                 if i==self.textlabel_list.__len__()-1 and text_label.text():
                     self.append_label()
-                    self.facelabel_list[i].setPixmap(pix)
+                    print('1')
+                    self.facelabel_list[-1].setPixmap(pix)
                     tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
                     all_str = '姓名:#' + name + '#\n' + '时间:' + tx
-                    self.textlabel_list[i].setText(all_str)
+                    self.textlabel_list[-1].setText(all_str)
 
     def check_name(self,name):
         if name not in self.long_name_list:
@@ -370,11 +447,13 @@ class Ui_MainWindow(QMainWindow):
                 tx1 = time.strftime('%Y-%m-%d %H:%M:%S')
                 str_1 = '检测到未知人员于' + tx1 + '出现\n'
                 self.textBrowser.insertPlainText(str_1)
+                self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
             else:
                 self.long_name_list.append(name)
                 tx1 = time.strftime('%Y-%m-%d %H:%M:%S')
                 str_1 = '检测到#' + name + '#于' + tx1 + '出现\n'
                 self.textBrowser.insertPlainText(str_1)
+                self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
         if name not in self.name_list:
             self.name_list.append(name)
             return True
@@ -411,6 +490,47 @@ class Ui_MainWindow(QMainWindow):
 
     def clear_all_text(self):
         self.textBrowser.clear()
+
+    def draw_face(self,src,radius):
+        if src is None:
+            return
+
+        si = QSize(2*radius,2*radius)
+        mask = QBitmap(si)
+        painter = QPainter(mask)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        painter.fillRect(0,0,si.width(),si.height(),Qt.white)
+        painter.setBrush(QColor(0,0,0))
+        painter.drawRoundedRect(0,0,si.width(),si.height(),99,99)
+        image = QPixmap(src.scaled(si))
+        image.setMask(mask)
+
+        return image
+
+    def label_draw_face(self,label,image):
+        label.setMaximumSize(200, 200)
+        label.setMinimumSize(200, 200)
+        label.radius = 100
+        target = QPixmap(label.size())
+        target.fill(Qt.transparent)
+
+        p = QPixmap.fromImage(image).scaled(
+            200, 200, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+
+        painter = QPainter(target)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setRenderHint(QPainter.HighQualityAntialiasing, True)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        path = QPainterPath()
+        path.addRoundedRect(0, 0, label.width(), label.height(), label.radius, label.radius)
+
+        painter.setClipPath(path)
+        painter.drawPixmap(0, 0, p)
+        label.setPixmap(target)
+        print('ck1')
+        return label
+
 
 
 if __name__ == '__main__':
