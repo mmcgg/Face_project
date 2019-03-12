@@ -19,7 +19,7 @@ class TableWidge(QWidget):
         self.db = PyMySQL('localhost','root','Asd980517','WEININGFACE')
         self.people_size = self.db.get_all_info().__len__()
         self.model = QStandardItemModel(self.people_size,2)
-        self.model.setHorizontalHeaderLabels(['姓名','最近到访时间'])
+        self.model.setHorizontalHeaderLabels(['姓名','数据记录时间'])
         self.initMenu()
         self.initAnimation()
         for col in range(self.people_size):

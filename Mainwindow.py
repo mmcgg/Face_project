@@ -207,7 +207,7 @@ class Ui_MainWindow(QMainWindow):
         self.ac_open_cama = self._contextMenu.addAction('打开相机', self.CameraOperation)
         self.ac_detection = self._contextMenu.addAction('一键签到', self.Checkin)
         self.ac_Addface = self._contextMenu.addAction('添加新人脸',self.AddFace)
-        self.ac_DynamicRecog = self._contextMenu.addAction('开启动态识别',self.DynamicRecogOn)
+        self.ac_DynamicRecog = self._contextMenu.addAction('关闭动态识别',self.DynamicRecogOn)
         self.ac_dbManager = self._contextMenu.addAction('数据库操作',self.openDBmanager)
         self.ac_delete_text = self._contextMenu.addAction('删除信息显示',self.clear_all_text)
     def initAnimation(self):
@@ -229,6 +229,7 @@ class Ui_MainWindow(QMainWindow):
         self.FaceThread.Bound_Name.connect(self.ShowInTab)
         self.FaceThread.Face_Count.connect(self.ShowInLCD)
         self.pushButton.clicked.connect(self.CameraOperation)
+        self.pushButton.clicked.connect(self.clear_all_label)
         self.pushButton_3.clicked.connect(self.Checkin)
         self.pushButton_4.clicked.connect(self.OpenDraw)
 
@@ -250,15 +251,10 @@ class Ui_MainWindow(QMainWindow):
         if not self.textlabel_list[0].text():
             return
 
-        print(self.name_list)
         self.facelabel_list[0].clear()
-        print('face_label cleared')
         name = self.textlabel_list[0].text().split('#')[1]
         self.textlabel_list[0].clear()
-        print('text_label cleared')
         self.name_list.remove(name)
-        print('name:',name,'removed')
-        print(self.textlabel_list.__len__())
         for i in range(self.textlabel_list.__len__()-1):
             print(self.textlabel_list[i].text())
             if self.textlabel_list[i+1].text():
@@ -303,6 +299,8 @@ class Ui_MainWindow(QMainWindow):
         
             else:
                 self.timer_camera.start(50)
+                self.timer_dynamic_recog.start(400)
+                self.ac_DynamicRecog.setText('关闭动态识别')
                 self.ac_open_cama.setText('关闭摄像头')
                 self.pushButton.setText('关闭摄像头')
         else:
@@ -429,7 +427,9 @@ class Ui_MainWindow(QMainWindow):
     def clear_all_text(self):
         self.textBrowser.clear()
 
-app = QtWidgets.QApplication(sys.argv)
-ui = Ui_MainWindow()
-ui.show()
-sys.exit(app.exec_())
+
+if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)
+    ui = Ui_MainWindow()
+    ui.show()
+    sys.exit(app.exec_())

@@ -13,7 +13,7 @@ class PyMySQL:
         self.user = user
         self.passwd = passwd
         self.db = db
-        self.table_name = 'FEATURE'
+        self.table_name = 'FEATUREVECTOR'
 
     def connect(self, charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor):
         '''connect to a certain database'''
@@ -145,7 +145,6 @@ class PyMySQL:
         results_selfat = self.get_all_info()
         for i, info in enumerate(results_selfat):
             feature_vector = info[2]
-            print(feature_vector)
             feature_vector_str = feature_vector[1:-1].split(',')
 
             feature_vector_float = []
