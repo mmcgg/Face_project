@@ -149,6 +149,7 @@ class Ui_MainWindow(QMainWindow):
         self.AddFaceThread = AddFaceThread(self.detector,net)
         #定时器
         self.timer_camera =   QTimer()
+        self.timer_camera_counter = 0
         self.timer_clear_label = QTimer()
         self.timer_dynamic_recog = QTimer()
         self.timer_long_name = QTimer()
@@ -274,6 +275,7 @@ class Ui_MainWindow(QMainWindow):
     def slot_init(self):
 
         self.timer_camera.timeout.connect(self.show_camera)
+        self.timer_camera.timeout.connect(self.frame_count)
         self.timer_clear_label.timeout.connect(self.del_instant_label)
         self.timer_dynamic_recog.timeout.connect(self.Checkin)
         self.timer_long_name.timeout.connect(self.del_long_name)
@@ -288,6 +290,16 @@ class Ui_MainWindow(QMainWindow):
 
     def OpenDraw(self):
         self.dynamic_draw_flag = 1 - self.dynamic_draw_flag
+
+    def frame_count(self):
+        if self.timer_camera_counter is None:
+            self.timer_camera_counter = 0
+
+        else:
+            self.timer_camera_counter = self.timer_camera_counter + 1
+
+        if self.timer_camera_counter>=5:
+            self.timer_camera_counter = 0
 
     def ShowInLCD(self,number):
         self.lcdNumber.display(number)
@@ -328,9 +340,11 @@ class Ui_MainWindow(QMainWindow):
                 msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please check you have connected your camera", buttons=QtWidgets.QMessageBox.Ok,
                                                 defaultButton=QtWidgets.QMessageBox.Ok)
         else:
-            img = self.image.copy()
-            self.AddFaceThread.SetImg(img)
-
+            self.Addface_img = self.image.copy()
+            try:
+                self.AddFaceThread.SetImg(self.Addface_img)
+            except:
+                pass
     def DynamicRecogOn(self):
         if self.timer_camera.isActive()==False:
             msg = QtWidgets.QMessageBox.warning(self, u"warning", u"没有检测到摄像头", buttons=QtWidgets.QMessageBox.Ok,
@@ -351,7 +365,7 @@ class Ui_MainWindow(QMainWindow):
                                                 defaultButton=QtWidgets.QMessageBox.Ok)
         
             else:
-                self.timer_camera.start(50)
+                self.timer_camera.start(75)
                 self.timer_dynamic_recog.start(400)
                 self.ac_DynamicRecog.setText('关闭动态识别')
                 self.ac_open_cama.setText('关闭摄像头')
@@ -369,7 +383,8 @@ class Ui_MainWindow(QMainWindow):
     def show_camera(self):
         flag, self.image= self.cap.read()
         if self.dynamic_draw_flag:
-            self.draw_face_rec()
+            if self.timer_camera_counter==0:
+                self.draw_face_rec()
 
 
         show = cv2.resize(self.image, (800, 600))
@@ -392,6 +407,7 @@ class Ui_MainWindow(QMainWindow):
 
 
     def Checkin(self):
+
         if self.timer_camera.isActive()==False:
             msg = QtWidgets.QMessageBox.warning(self, u"warning", u"没有检测到摄像头", buttons=QtWidgets.QMessageBox.Ok,
                                                 defaultButton=QtWidgets.QMessageBox.Ok)
@@ -399,8 +415,10 @@ class Ui_MainWindow(QMainWindow):
         else:
             #启动识别算法线程
             self.RecogImage = self.image.copy()
-            self.FaceThread.SetImg(self.image)
-
+            try:
+                self.FaceThread.SetImg(self.image)
+            except:
+                pass
     # def button_wrtieface_click(self):
     #     if self.timer_camera.isActive() == False:
     #         msg = QtWidgets.QMessageBox.warning(self, u"Warning", u"Please open your camara ", buttons=QtWidgets.QMessageBox.Ok,
@@ -411,43 +429,46 @@ class Ui_MainWindow(QMainWindow):
     #         if(ok and (len(name)!=0)):
     #             add_new_face(self.image,name)
     def ShowInTab(self,bound0,bound1,bound2,bound3,name):
+        try:
+            face = self.RecogImage[bound1:bound1 + bound3,
+                        bound0:bound0 + bound2]
+            show = cv2.resize(face, (200,200))
+            show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
+            showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
+            pix = mask_image(show)
+            if self.textlabel_list.__len__()==0:
+                self.append_label()
+        except:
+            return
 
-        face = self.RecogImage[bound1:bound1 + bound3,
-                    bound0:bound0 + bound2]
-        show = cv2.resize(face, (200,200))
-        show = cv2.cvtColor(show, cv2.COLOR_BGR2RGB)
-        showImage = QtGui.QImage(show.data, show.shape[1], show.shape[0], QtGui.QImage.Format_RGB888)
-        pix = mask_image(show)
-        print(self.name_list)
-        if self.textlabel_list.__len__()==0:
-            print('no_list')
-            self.append_label()
+        try:
+            if self.check_name(name)==True:
+                for i,text_label in enumerate(self.textlabel_list):
+                    if not text_label.text():
+                        print('doing')
+                        self.facelabel_list[i].setPixmap(pix)
+                        tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
+                        all_str = '姓名:#' + name + '#\n' + '时间:' + tx
+                        text_label.setText(all_str)
+                        break
 
-        if self.check_name(name)==True:
-            for i,text_label in enumerate(self.textlabel_list):
-                if not text_label.text():
-                    print('doing')
-                    self.facelabel_list[i].setPixmap(pix)
-                    tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
-                    all_str = '姓名:#' + name + '#\n' + '时间:' + tx
-                    text_label.setText(all_str)
-                    break
-
-                if i==self.textlabel_list.__len__()-1 and text_label.text():
-                    self.append_label()
-                    print('1')
-                    self.facelabel_list[-1].setPixmap(pix)
-                    tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
-                    all_str = '姓名:#' + name + '#\n' + '时间:' + tx
-                    self.textlabel_list[-1].setText(all_str)
+                    if i==self.textlabel_list.__len__()-1 and text_label.text():
+                        self.append_label()
+                        print('1')
+                        self.facelabel_list[-1].setPixmap(pix)
+                        tx = time.strftime('%Y-%m-%d\n%H:%M:%S')
+                        all_str = '姓名:#' + name + '#\n' + '时间:' + tx
+                        self.textlabel_list[-1].setText(all_str)
+        except:
+            return
 
     def check_name(self,name):
         if name not in self.long_name_list:
             if name == 'Unknown':
                 tx1 = time.strftime('%Y-%m-%d %H:%M:%S')
                 str_1 = '检测到未知人员于' + tx1 + '出现\n'
-                self.textBrowser.insertPlainText(str_1)
-                self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
+                # self.textBrowser.insertPlainText(str_1)
+                # self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
             else:
                 self.long_name_list.append(name)
                 tx1 = time.strftime('%Y-%m-%d %H:%M:%S')

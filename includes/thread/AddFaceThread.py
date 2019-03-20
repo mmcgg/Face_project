@@ -54,8 +54,10 @@ class AddFaceThread(QThread):
         return areas.index(max(areas))
 
     def run(self):
-        result = self.detector.detect_faces(self.img)
-
+        try:
+            result = self.detector.detect_faces(self.img)
+        except:
+            return
         #如果没有检测出人脸，发出一个信号并且提前停止线程
         if len(result) == 0 :
             self.No_face.emit()
@@ -112,11 +114,16 @@ class AddFaceThread(QThread):
         output_imgs_features = self.get_imgs_features(aligment_imgs)
 
         # print('get image featrure ok')
-        name, ok = QInputDialog.getText(self.inputWidget, "Get name", "Your name:", QLineEdit.Normal, "")
-        current_time = time.strftime('%Y-%m-%d\n%H:%M:%S')
-        if ok and name!='':
-            self.db.insert([name],[20],[output_imgs_features],[current_time])
-            print('insert ok')
+        try:
+            name, ok = QInputDialog.getText(self.inputWidget, "Get name", "Your name:", QLineEdit.Normal, "")
+            current_time = time.strftime('%Y-%m-%d\n%H:%M:%S')
+            try:
+                if ok and name!='':
+                    self.db.insert([name],[20],[output_imgs_features],[current_time])
+            except:
+                return
+        except:
+            return
         # print('insert ok')
 
 
