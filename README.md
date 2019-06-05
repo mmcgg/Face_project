@@ -4,17 +4,25 @@
 
 ## Introduction
 
-   This is a Face Recognition system application based on MTCNN Face Detection Model and Sphere net Face Recognition Model. The sphere face model comes from  https://github.com/clcarwin/sphereface_pytorch or you can use your own model (.pth)
+   This is a Face Recognition system application based on MTCNN Face Detection Model and Sphere net Face Recognition Model. The sphere face model code is based on  https://github.com/clcarwin/sphereface_pytorch, Thanks for his great work.
 
 
 
 ## Model Installation
 
-Face model is here, download and install the model folder in the project folder
+Pretrained model can be achieved through the following link.
 
-https://pan.baidu.com/s/1AbIxu066iBVeClGOshdu9w 密码 qgjd
+You can download it and put the model folder in the project folder
+
+https://pan.baidu.com/s/1AbIxu066iBVeClGOshdu9w Passward: qgjd
 
 
+
+## Prerequisite
+
+- Python 3.6+ [3.6 verified]
+- Pytorch 0.4+ [0.4 verified]
+- Tensorflow 1.12+ [1.12 verified]
 
 ## Installation
 
